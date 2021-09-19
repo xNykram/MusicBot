@@ -8,7 +8,6 @@ const ytdl = require('ytdl-core');
 const Discord = require('discord.js');
 const fs = require('fs');
 const intents = Discord.Intents.ALL;
-console.log(intents);
 const client = new Discord.Client({ intents: 32509 });
 
 const queue = new Map();

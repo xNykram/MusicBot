@@ -7,67 +7,72 @@ const voice = require('@discordjs/voice');
 var connection = null;
 var audioPlayer = null;
 var subscribe = null;
+var currentSong = null;
 const queues = new Map();
-
 
 module.exports = {
     name: 'play',
     description: 'Search and plays a song',
     queues: queues,
-    async execute(message, args){
-        if(args.length == 0)
-        {
-            message.reply("You need to specify a song to play.");
-            return false;
-        }
+    getCurrentSong() { return currentSong; },
+    getPlayer() { return audioPlayer; },
+    clearCurrentSong() { currentSong = null; },
+    execute: addToQueue
+}
 
-        const videoFinder = async (query) => {
-            const videoResult = await ytSearch(query);
+async function addToQueue(message, args){
+    if(args.length == 0)
+    {
+        message.reply("You need to specify a song to play.");
+        return false;
+    }
 
-            return (videoResult.videos.length > 0) ? videoResult.videos[0] : null;
-        }
+    const videoFinder = async (query) => {
+        const videoResult = await ytSearch(query);
 
+        return (videoResult.videos.length > 0) ? videoResult.videos[0] : null;
+    }
+
+    connection = voice.getVoiceConnection(message.guild.id);
+    const query = args.join(' ');
+    const video = await videoFinder(query);
+
+    if(!connection)
+    {
+        join.execute(message, args);
         connection = voice.getVoiceConnection(message.guild.id);
-        const query = args.join(' ');
-        message.reply(query);
-        const video = await videoFinder(query);
+    }
 
-        if(!connection)
+    if(video)
+    {
+        var serverQueue = queues.get(message.guild.id);
+        if(!serverQueue)
         {
-            join.execute(message, args);
-            connection = voice.getVoiceConnection(message.guild.id);
+            serverQueue = [];
+            queues.set(message.guild.id, serverQueue);
         }
-
-        if(video)
+        serverQueue.push(video);
+        if((serverQueue.length == 1) && (currentSong == null))
         {
-            var serverQueue = queues.get(message.guild.id);
-            if(!serverQueue)
-            {
-                serverQueue = [];
-                queues.set(message.guild.id, serverQueue);
-            }
-            serverQueue.push(video);
-            if(serverQueue.length == 1)
-            {
-                message.reply(`Playing ${video.title} (${video.duration.timestamp})`);
-            }
-            else
-            {
-                pos = serverQueue.length;
-                message.reply(
-                    `Added ${video.title} (${video.duration.timestamp}) to queue (pos: ${pos});`
-                )
-            }
-            play(message.guild, serverQueue);
+            message.reply(`Playing ${video.title} (${video.duration.timestamp})`);
         }
         else
         {
-            message.reply("Couldn't find requested query.");
+            pos = serverQueue.length;
+            message.reply(
+                `Added ${video.title} (${video.duration.timestamp}) to queue (pos: ${pos});`
+            )
         }
+        if(currentSong == null)
+            playNext(message.guild, serverQueue);
+    }
+    else
+    {
+        message.reply("Couldn't find requested query :(");
     }
 }
 
-async function play(guild, queue){
+async function playNext(guild, queue){
     if(!connection)
         return false;
     if(!audioPlayer)
@@ -78,8 +83,8 @@ async function play(guild, queue){
     {
         return false;
     }
-    song = queue.shift();
-    const stream = ytdl(song.url, {filter: 'audioonly'});
+    currentSong = queue.shift();
+    const stream = ytdl(currentSong.url, {filter: 'audioonly'});
     const resource = voice.createAudioResource(stream);
     audioPlayer.play(resource);
     subscribe.player.on("stateChange", (oldState, newState) => {
@@ -92,10 +97,11 @@ async function play(guild, queue){
                 connection.destroy();
                 subscribe.unsubscribe();
                 connection = null;
+                currentSong = null;
             }
             else
             {
-                play(guild, queue);
+                playNext(guild, queue);
             }
         }
     });

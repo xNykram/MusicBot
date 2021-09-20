@@ -1,4 +1,5 @@
-const { queues, getCurrentSong, clearCurrentSong, getPlayer } = require('./play.js');
+const { Subscription, getSubscription } = require('../subscription.js'); 
+const { AudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
 
 module.exports = {
     name:'skip',
@@ -7,9 +8,10 @@ module.exports = {
 }
 
 async function skip(message, args){
-    const queue = queues.get(message.guild.id);
-    const currentSong = getCurrentSong();
-    const player = getPlayer();
+    const sub = getSubscription(message, true);
+    const queue = sub.queue;
+    const currentSong = sub.currentSong;
+    const player = sub.audioPlayer;
     if(args.length > 1)
     {
         message.reply('Bad usage. Use !skip [num]'); 
@@ -26,11 +28,11 @@ async function skip(message, args){
         return false;
     }
     const total = toSkip;
+    const playerStatus = player.state.status;
      
-    if(currentSong)
+    if(playerStatus !== AudioPlayerStatus.Idle) 
     {
-        player.stop(); 
-        clearCurrentSong();
+        player.stop();
         toSkip -= 1; 
     }
 

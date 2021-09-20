@@ -3,6 +3,7 @@ const leave = require('./leave.js');
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 const voice = require('@discordjs/voice');
+const { Subscription, getSubscription } = require('../subscription.js');
 
 var connection = null;
 var audioPlayer = null;
@@ -13,10 +14,6 @@ const queues = new Map();
 module.exports = {
     name: 'play',
     description: 'Search and plays a song',
-    queues: queues,
-    getCurrentSong() { return currentSong; },
-    getPlayer() { return audioPlayer; },
-    clearCurrentSong() { currentSong = null; },
     execute: addToQueue
 }
 
@@ -33,26 +30,16 @@ async function addToQueue(message, args){
         return (videoResult.videos.length > 0) ? videoResult.videos[0] : null;
     }
 
-    connection = voice.getVoiceConnection(message.guild.id);
     const query = args.join(' ');
     const video = await videoFinder(query);
 
-    if(!connection)
-    {
-        join.execute(message, args);
-        connection = voice.getVoiceConnection(message.guild.id);
-    }
+    var subscribe = getSubscription(message, true);
 
     if(video)
     {
-        var serverQueue = queues.get(message.guild.id);
-        if(!serverQueue)
-        {
-            serverQueue = [];
-            queues.set(message.guild.id, serverQueue);
-        }
-        serverQueue.push(video);
-        if((serverQueue.length == 1) && (currentSong == null))
+        const serverQueue = subscribe.queue;
+        const currentSong = subscribe.currentSong;
+        if((serverQueue.length == 0) && (currentSong == null))
         {
             message.reply(`Playing ${video.title} (${video.duration.timestamp})`);
         }
@@ -60,11 +47,10 @@ async function addToQueue(message, args){
         {
             pos = serverQueue.length;
             message.reply(
-                `Added ${video.title} (${video.duration.timestamp}) to queue (pos: ${pos});`
+                `Added ${video.title} (${video.duration.timestamp}) to queue (pos: ${pos + 1});`
             )
         }
-        if(currentSong == null)
-            playNext(message.guild, serverQueue);
+        subscribe.enqueue(video);
     }
     else
     {
@@ -72,37 +58,3 @@ async function addToQueue(message, args){
     }
 }
 
-async function playNext(guild, queue){
-    if(!connection)
-        return false;
-    if(!audioPlayer)
-        audioPlayer = voice.createAudioPlayer();    
-    if(!subscribe)
-        subscribe = connection.subscribe(audioPlayer);
-    if(subscribe.player.state.status !== 'idle')
-    {
-        return false;
-    }
-    currentSong = queue.shift();
-    const stream = ytdl(currentSong.url, {filter: 'audioonly'});
-    const resource = voice.createAudioResource(stream);
-    audioPlayer.play(resource);
-    subscribe.player.on("stateChange", (oldState, newState) => {
-        console.log(`OldState: ${oldState.status}, NewState: ${newState.status}`);
-        if(newState.status === 'idle')
-        {
-            if(queue.length == 0)
-            {
-                connection.disconnect();
-                connection.destroy();
-                subscribe.unsubscribe();
-                connection = null;
-                currentSong = null;
-            }
-            else
-            {
-                playNext(guild, queue);
-            }
-        }
-    });
-}

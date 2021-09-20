@@ -1,4 +1,4 @@
-const { queues, getCurrentSong } = require('./play.js');
+const { Subscription, getSubscription } = require('../subscription.js');
 
 module.exports = {
     name: 'queue',
@@ -8,13 +8,14 @@ module.exports = {
 
 function showQueue(message, args)
 {
-    const currentSong = getCurrentSong();
-    const queue = queues.get(message.guild.id);
+    const sub = getSubscription(message, false);
+    const currentSong = sub.currentSong;
+    const queue = sub.queue;
     buffer = 'Current queue:\n'
-    if(currentSong != null)
+    if(currentSong)
         buffer += `Now playing ${currentSong.title} (${currentSong.duration.timestamp})\n`;
     else
-        buffer += '(Music is paused now)'
+        buffer += '(Music is paused now)\n'
     for(i = 0; i < queue.length; i++)
     {
         title = queue[i].title;

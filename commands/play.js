@@ -1,15 +1,5 @@
-const join = require('./join.js');
-const leave = require('./leave.js');
-const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
-const voice = require('@discordjs/voice');
-const { Subscription, getSubscription } = require('../subscription.js');
-
-var connection = null;
-var audioPlayer = null;
-var subscribe = null;
-var currentSong = null;
-const queues = new Map();
+const { getSubscription } = require('../subscription.js');
 
 module.exports = {
     name: 'play',
@@ -17,9 +7,8 @@ module.exports = {
     execute: addToQueue
 }
 
-async function addToQueue(message, args){
-    if(args.length == 0)
-    {
+async function addToQueue(message, args) {
+    if (args.length == 0) {
         message.reply("You need to specify a song to play.");
         return false;
     }
@@ -34,17 +23,18 @@ async function addToQueue(message, args){
     const video = await videoFinder(query);
 
     var subscribe = getSubscription(message, true);
+    if(!subscribe){
+        message.reply("Some error occured. Couldn't establish connection to channel:(");
+        return false;
+    }
 
-    if(video)
-    {
+    if (video) {
         const serverQueue = subscribe.queue;
         const currentSong = subscribe.currentSong;
-        if((serverQueue.length == 0) && (currentSong == null))
-        {
+        if ((serverQueue.length == 0) && (currentSong == null)) {
             message.reply(`Playing ${video.title} (${video.duration.timestamp})`);
         }
-        else
-        {
+        else {
             pos = serverQueue.length;
             message.reply(
                 `Added ${video.title} (${video.duration.timestamp}) to queue (pos: ${pos + 1});`
@@ -52,8 +42,7 @@ async function addToQueue(message, args){
         }
         subscribe.enqueue(video);
     }
-    else
-    {
+    else {
         message.reply("Couldn't find requested query :(");
     }
 }

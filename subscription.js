@@ -1,26 +1,19 @@
-const { AudioPlayer, 
-    createAudioPlayer, 
+const {
+    createAudioPlayer,
     createAudioResource,
-    AudioResource,
     AudioPlayerStatus,
-    VoiceConnection,
     VoiceConnectionStatus,
     VoiceConnectionDisconnectReason,
-    joinVoiceChannel,
     entersState} = require('@discordjs/voice');
 
 const { promisify } = require('util')
-
 const ytdl = require('ytdl-core');
-
+const join = require('./commands/join.js');
 const wait = promisify(setTimeout);
-
 const subscriptions = new Map();
 
-const join = require('./commands/join.js');
 
-
-class Subscription{
+class Subscription {
     voiceConnection;
     audioPlayer;
     queue;
@@ -28,35 +21,35 @@ class Subscription{
     readyLock = false;
     currentSong = null;
 
-    constructor(voiceConnection){
+    constructor(voiceConnection) {
         this.voiceConnection = voiceConnection;
         this.audioPlayer = createAudioPlayer();
         this.queue = [];
 
         this.voiceConnection.on('stateChange', (_, newState) => {
-            if(newState.status === VoiceConnectionStatus.Disconnected){
-                if(newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014){
-                    if(!this.waitForState(VoiceConnectionStatus.Connecting, 5000)){
+            if (newState.status === VoiceConnectionStatus.Disconnected) {
+                if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
+                    if (!this.waitForState(VoiceConnectionStatus.Connecting, 5000)) {
                         this.voiceConnection.destroy();
                     }
                 }
-                else if(this.voiceConnection.rejoinAttempts < 5){
+                else if (this.voiceConnection.rejoinAttempts < 5) {
                     //in this case we can try to reconnect
                     this.waitForRejoin();
                 }
-                else{
+                else {
                     //no more attempts :(
                     this.voiceConnection.destroy();
                 }
             }
-            else if(newState.status === VoiceConnectionStatus.Destroyed){
+            else if (newState.status === VoiceConnectionStatus.Destroyed) {
                 this.stop();
             }
-            else if(!this.readyLock && 
-                (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)){
+            else if (!this.readyLock &&
+                (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
                 this.readyLock = true;
-                if(!this.waitForState(VoiceConnectionStatus.Ready, 20000)){
-                    if(this.voiceConnection.status !== VoiceConnectionStatus.Destroyed)
+                if (!this.waitForState(VoiceConnectionStatus.Ready, 20000)) {
+                    if (this.voiceConnection.status !== VoiceConnectionStatus.Destroyed)
                         this.voiceConnection.destroy();
                 }
                 this.readyLock = false;
@@ -64,7 +57,7 @@ class Subscription{
         });
 
         this.audioPlayer.on('stateChange', (oldState, newState) => {
-            if(newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle){
+            if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 //audio resource has finished playing
                 this.processQueue();
             }
@@ -78,33 +71,33 @@ class Subscription{
         this.voiceConnection.subscribe(this.audioPlayer);
     }
 
-    async waitForState(state, timeout){
-        try{
+    async waitForState(state, timeout) {
+        try {
             await entersState(this.voiceConnection, state, timeout);
             return true;
         }
-        catch{
+        catch {
             return false;
         }
     }
 
-    async waitForRejoin(){
+    async waitForRejoin() {
         await wait((this.voiceConnection.rejoinAttempts + 1) * 5000);
         this.voiceConnection.rejoin();
     }
 
-    async stop(){
+    async stop() {
         this.queue = [];
         this.audioPlayer.stop(true);
     }
 
-    async enqueue(song){
+    async enqueue(song) {
         this.queue.push(song);
         this.processQueue();
     }
 
-    async processQueue(){
-        if(this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle) || (this.queue.length == 0)) {
+    async processQueue() {
+        if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle) || (this.queue.length == 0)) {
             this.currentSong = null;
             console.log(`lock: ${this.queueLock} state: ${this.audioPlayer.state.status}, len: ${this.queue.length}`);
             return;
@@ -113,34 +106,30 @@ class Subscription{
         this.queueLock = true;
         const nextTrack = this.queue.shift();
 
-        try{
-            const stream = await ytdl(nextTrack.url, {filter: 'audioonly'});
+        try {
+            const stream = ytdl(nextTrack.url);
             const resource = createAudioResource(stream);
             this.currentSong = nextTrack;
             this.audioPlayer.play(resource);
             this.queueLock = false;
-            console.log('D2');
         }
-        catch(error){
+        catch (error) {
             this.queueLock = false;
             this.currentSong = null;
-            console.log('D3');
             console.log(error);
             return this.processQueue();
         }
     }
 }
 
-function getSubscription(message, joinIfNotPresent){
+function getSubscription(message, joinIfNotPresent) {
     var sub = subscriptions.get(message.guild.id);
-    if(sub)
+    if (sub)
         return sub;
 
-    if(joinIfNotPresent)
-    {
-        const connection = join.execute(message, null); 
-        if(connection)
-        {
+    if (joinIfNotPresent) {
+        const connection = join.execute(message);
+        if (connection) {
             sub = new Subscription(connection);
             subscriptions.set(message.guild.id, sub);
             return sub;

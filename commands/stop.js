@@ -13,7 +13,7 @@ module.exports = {
 
         const arr = subscription.queue;
         subscription.audioPlayer.stop();
-        subscription.queue = arr.splice(0, arr.length);
+        subscription.queue = arr.splice(arr.length);
         leave.execute(message);
     }
 }

@@ -66,6 +66,7 @@ class Subscription {
         this.audioPlayer.on('error', (error) => {
             console.log('Error occured');
             console.log(error);
+            this.resume();
         });
 
         this.voiceConnection.subscribe(this.audioPlayer);
@@ -88,7 +89,19 @@ class Subscription {
 
     async stop() {
         this.queue = [];
-        this.audioPlayer.stop(true);
+        return this.audioPlayer.stop(true);
+    }
+
+    async pause(){
+        return this.audioPlayer.pause(true)
+    }
+
+    async resume(){
+        return this.audioPlayer.resume() 
+    }
+
+    status(){
+        return this.audioPlayer.state.status
     }
 
     async enqueue(song) {

@@ -89,7 +89,12 @@ class Subscription {
 
     async stop() {
         this.queue = [];
-        return this.audioPlayer.stop(true);
+        this.audioPlayer.stop(true);
+        return this.voiceConnection.disconnect()
+    }
+
+    async leave(){
+        return this.connection.disconnect();
     }
 
     async pause(){
@@ -102,6 +107,12 @@ class Subscription {
 
     status(){
         return this.audioPlayer.state.status
+    }
+
+    isInVoiceChannel(){
+        if(this.connection == null)
+            return false;
+        return this.connection.state == VoiceConnectionStatus.Ready;
     }
 
     async enqueue(song) {
@@ -123,6 +134,7 @@ class Subscription {
             const stream = ytdl(nextTrack.url);
             const resource = createAudioResource(stream);
             this.currentSong = nextTrack;
+            this.audioPlayer.stop(true);
             this.audioPlayer.play(resource);
             this.queueLock = false;
         }

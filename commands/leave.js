@@ -1,14 +1,16 @@
-const { getVoiceConnection } = require('@discordjs/voice');
+const { getSubscription } = require('../subscription.js')
 
 module.exports = {
     name: 'leave',
     description: 'Forces bot to leave from voice channel',
     execute(message) {
-        const voiceChannel = message.member.voice.channel;
-        if (!voiceChannel) {
+        const subscription = getSubscription(message.guild.id);
+        if(subscription.isInVoiceChannel()){
+            message.reply("You have to be in a voice channel with the music bot to do that.");
             return false;
         }
-        return getVoiceConnection(message.guild.id).disconnect();
+
+        subscription.leave();
     }
 
 

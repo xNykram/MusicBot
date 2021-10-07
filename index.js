@@ -1,5 +1,5 @@
 // Setup
-const { prefix, token } = require('./config.json');
+const { prefix, token, test_token } = require('./config.json');
 
 const Discord = require('discord.js');
 const fs = require('fs');
@@ -15,7 +15,10 @@ for (const file of commandFiles) {
 }
 
 client.once('ready', () => {
-    console.log('Bot started.');
+    if(debug)
+        console.log("Bot started in debug mode.");
+    else
+        console.log('Bot started.');
 });
 
 client.on('messageCreate', async message => {
@@ -34,5 +37,17 @@ client.on('messageCreate', async message => {
     }
 })
 
-client.login(token);
+
+console.log(process.argv);
+
+var debug = false;
+
+if(process.argv.includes('-d')){
+    client.login(test_token);
+    debug = true;
+}
+else{
+    client.login(token);
+}
+
 

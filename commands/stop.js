@@ -1,5 +1,4 @@
 const { getSubscription } = require('../subscription.js');
-const leave = require('./leave.js');
 
 module.exports = {
     name: "stop",
@@ -11,9 +10,6 @@ module.exports = {
             return false;
         }
 
-        const arr = subscription.queue;
-        subscription.audioPlayer.stop();
-        subscription.queue = arr.splice(0, arr.length);
-        leave.execute(message);
+        subscription.stop();
     }
 }

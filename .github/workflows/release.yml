@@ -19,5 +19,4 @@ jobs:
         script: |
           cd /MusicBot
           sudo killall screen
-          screen -S MusicBot
-          node index.js
+          sudo screen -S MusicBot node index.js

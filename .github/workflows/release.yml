@@ -1,8 +1,9 @@
 name: Release
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Deploy"]
+    types:
+      - completed
 jobs:
   build:
     name: Release
@@ -17,3 +18,6 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           cd /MusicBot
+          sudo killall screen
+          screen -S MusicBot
+          node index.js

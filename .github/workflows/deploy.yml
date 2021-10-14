@@ -18,3 +18,4 @@ jobs:
         script: |
           cd /MusicBot
           sudo git pull
+          docker-compose up -d

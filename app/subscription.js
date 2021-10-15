@@ -66,7 +66,9 @@ class Subscription {
         this.audioPlayer.on('error', (error) => {
             console.log('Error occured');
             console.log(error);
-            this.resume();
+            this.currentSong = null;
+            this.queueLock = false;
+            this.processQueue();
         });
 
         this.voiceConnection.subscribe(this.audioPlayer);
@@ -101,10 +103,6 @@ class Subscription {
         return this.audioPlayer.pause(true)
     }
 
-    async resume(){
-        return this.audioPlayer.resume() 
-    }
-
     status(){
         return this.audioPlayer.state.status
     }
@@ -122,7 +120,6 @@ class Subscription {
 
     async processQueue() {
         if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle) || (this.queue.length == 0)) {
-            this.currentSong = null;
             console.log(`lock: ${this.queueLock} state: ${this.audioPlayer.state.status}, len: ${this.queue.length}`);
             return;
         }
@@ -131,7 +128,11 @@ class Subscription {
         const nextTrack = this.queue.shift();
 
         try {
-            const stream = ytdl(nextTrack.url);
+            const stream = ytdl(nextTrack.url, { 
+                liveBuffer: 4000,
+                filter: 'audioonly',
+                highWaterMark: 1 << 25
+            });
             const resource = createAudioResource(stream);
             this.currentSong = nextTrack;
             this.audioPlayer.stop(true);

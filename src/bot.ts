@@ -1,30 +1,41 @@
-const {
+import {
     createAudioPlayer,
     createAudioResource,
+    joinVoiceChannel,
+    AudioPlayer,
     AudioPlayerStatus,
+    VoiceConnection,
     VoiceConnectionStatus,
     VoiceConnectionDisconnectReason,
-    entersState} = require('@discordjs/voice');
+    entersState } from '@discordjs/voice';
 
-const { promisify } = require('util')
-const ytdl = require('ytdl-core');
-const join = require('./commands/join.js');
+import { VideoSearchResult as VideoInfo } from 'yt-search';
+
+import { isInVoice } from './tools.js';
+import { promisify } from 'util';
+
+import ytdl from 'ytdl-core';
+import Discord from 'discord.js';
+
 const wait = promisify(setTimeout);
 const subscriptions = new Map();
 
 
-class Subscription {
-    voiceConnection;
-    audioPlayer;
-    queue;
+export class Subscription {
+    voiceConnection: VoiceConnection;
+    audioPlayer: AudioPlayer;
+    queue: VideoInfo[];
     queueLock = false;
     readyLock = false;
-    currentSong = null;
+    currentSong: VideoInfo;
 
-    constructor(voiceConnection) {
+    constructor() {
+        this.queue = [];
+    }
+
+    subscribe(voiceConnection: VoiceConnection) {
         this.voiceConnection = voiceConnection;
         this.audioPlayer = createAudioPlayer();
-        this.queue = [];
 
         this.voiceConnection.on('stateChange', (_, newState) => {
             if (newState.status === VoiceConnectionStatus.Disconnected) {
@@ -40,6 +51,7 @@ class Subscription {
                 else {
                     //no more attempts :(
                     this.voiceConnection.destroy();
+                    this.voiceConnection = null;
                 }
             }
             else if (newState.status === VoiceConnectionStatus.Destroyed) {
@@ -49,7 +61,7 @@ class Subscription {
                 (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
                 this.readyLock = true;
                 if (!this.waitForState(VoiceConnectionStatus.Ready, 20000)) {
-                    if (this.voiceConnection.status !== VoiceConnectionStatus.Destroyed)
+                    if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed)
                         this.voiceConnection.destroy();
                 }
                 this.readyLock = false;
@@ -59,6 +71,7 @@ class Subscription {
         this.audioPlayer.on('stateChange', (oldState, newState) => {
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 //audio resource has finished playing
+                this.currentSong = null;
                 this.processQueue();
             }
         });
@@ -74,7 +87,9 @@ class Subscription {
         this.voiceConnection.subscribe(this.audioPlayer);
     }
 
-    async waitForState(state, timeout) {
+    /* Bot state functions */
+
+    async waitForState(state: VoiceConnectionStatus, timeout: number) {
         try {
             await entersState(this.voiceConnection, state, timeout);
             return true;
@@ -91,44 +106,103 @@ class Subscription {
 
     async stop() {
         this.queue = [];
+        this.currentSong = null;
         this.audioPlayer.stop(true);
-        return this.voiceConnection.disconnect()
+        if (this.isInVoiceChannel(null))
+            this.voiceConnection.disconnect()
     }
 
-    async leave(){
-        return this.connection.disconnect();
+    async leave() {
+        if (this.isInVoiceChannel(null)) {
+            this.voiceConnection.disconnect();
+            return true;
+        }
+
+        return false;
     }
 
-    async pause(){
-        return this.audioPlayer.pause(true)
+    async pause() {
+        this.audioPlayer.pause(true)
     }
 
-    status(){
+    status() {
         return this.audioPlayer.state.status
     }
 
-    isInVoiceChannel(){
-        if(this.connection == null)
+    /* VC functions */
+
+    isInVoiceChannel(message?: Discord.Message) {
+        if (this.voiceConnection == null)
             return false;
-        return this.connection.state == VoiceConnectionStatus.Ready;
+        if (message) {
+            if (!isInVoice(message))
+                return false;
+            const channelId = message.member.voice.channelId;
+
+            return channelId === this.voiceConnection.joinConfig.channelId;
+        }
+
+        return this.voiceConnection.state.status === VoiceConnectionStatus.Ready;
     }
 
-    async enqueue(song) {
+    getVoiceChannel() {
+        if (this.voiceConnection == null)
+            return null;
+
+        return this.voiceConnection.joinConfig.channelId;
+    }
+
+    disconnectFromVoiceChannel() {
+        if (!this.isInVoiceChannel(null))
+            return false;
+
+        this.voiceConnection.disconnect();
+        return true;
+    }
+
+    connectToVoiceChannel(message: Discord.Message) {
+        if (this.isInVoiceChannel(message)) {
+            return null;
+        }
+
+        const channel = message.member.voice.channel;
+        const connection = joinVoiceChannel({
+            channelId: channel.id,
+            guildId: channel.guild.id,
+            //@ts-ignore
+            adapterCreator: channel.guild.voiceAdapterCreator
+        });
+
+
+        this.subscribe(connection);
+
+        return connection;
+    }
+
+    /* Queue processing functions */
+
+    async enqueue(song: VideoInfo) {
         this.queue.push(song);
         this.processQueue();
     }
 
     async processQueue() {
-        if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle) || (this.queue.length == 0)) {
+        if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle)) {
             console.log(`lock: ${this.queueLock} state: ${this.audioPlayer.state.status}, len: ${this.queue.length}`);
+
+            return;
+        }
+
+        if ((this.queue.length == 0) && !this.currentSong) {
+            this.disconnectFromVoiceChannel();
             return;
         }
 
         this.queueLock = true;
-        const nextTrack = this.queue.shift();
+        const nextTrack = this.currentSong ? this.currentSong : this.queue.shift();
 
         try {
-            const stream = ytdl(nextTrack.url, { 
+            const stream = ytdl(nextTrack.url, {
                 liveBuffer: 4000,
                 filter: 'audioonly',
                 highWaterMark: 1 << 25
@@ -143,29 +217,18 @@ class Subscription {
             this.queueLock = false;
             this.currentSong = null;
             console.log(error);
-            return this.processQueue();
+            this.processQueue();
         }
     }
 }
 
-function getSubscription(message, joinIfNotPresent) {
+export function getSubscription(message: Discord.Message) {
     var sub = subscriptions.get(message.guild.id);
     if (sub)
         return sub;
 
-    if (joinIfNotPresent) {
-        const connection = join.execute(message);
-        if (connection) {
-            sub = new Subscription(connection);
-            subscriptions.set(message.guild.id, sub);
-            return sub;
-        }
-    }
+    sub = new Subscription();
+    subscriptions.set(message.guild.id, sub);
 
-    return null;
+    return sub;
 }
-
-module.exports = {
-    Subscription: Subscription,
-    getSubscription: getSubscription
-};

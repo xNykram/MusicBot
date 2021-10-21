@@ -1,16 +1,25 @@
-const { getSubscription } = require('../subscription.js');
-const { AudioPlayerStatus } = require('@discordjs/voice');
+import Discord from 'discord.js';
 
-module.exports = {
+import { Command } from './command';
+import { Subscription, getSubscription } from '../bot';
+import { AudioPlayerStatus } from '@discordjs/voice';
+
+export const SkipCommand : Command = {
     name: 'skip',
-    description: 'Skips given amount of tracks in queue',
+    description: 'Skips given amount of songs',
+    aliases: ['s', 'sk', 'next', 'nxt'],
     execute: skip
 }
 
-async function skip(message, args) {
-    const sub = getSubscription(message, true);
-    const queue = sub.queue;
-    const player = sub.audioPlayer;
+async function skip(message: Discord.Message, args: string[]) {
+    const bot: Subscription = getSubscription(message);
+    if (!bot.isInVoiceChannel(message)) {
+        message.reply("You need to be in a voice channel to do that.");
+        return false;
+    }
+
+    const queue = bot.queue;
+    const player = bot.audioPlayer;
     if (args.length > 1) {
         message.reply('Bad usage. Use !skip [num]');
         return false;
@@ -28,6 +37,7 @@ async function skip(message, args) {
     const playerStatus = player.state.status;
 
     if (playerStatus !== AudioPlayerStatus.Idle) {
+        bot.currentSong = null;
         player.stop();
         toSkip -= 1;
     }

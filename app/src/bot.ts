@@ -142,7 +142,7 @@ export class Subscription {
             return channelId === this.voiceConnection.joinConfig.channelId;
         }
 
-        return this.voiceConnection.state.status === VoiceConnectionStatus.Ready;
+        return this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed
     }
 
     getVoiceChannel() {
@@ -153,7 +153,7 @@ export class Subscription {
     }
 
     disconnectFromVoiceChannel() {
-        if (!this.isInVoiceChannel(null))
+        if (this.voiceConnection == null)
             return false;
 
         this.voiceConnection.disconnect();

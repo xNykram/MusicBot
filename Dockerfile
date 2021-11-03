@@ -4,14 +4,12 @@ MAINTAINER WebSoftDevs
 
 RUN apt-get install python -y
 
-WORKDIR /app
+COPY app .
 
-COPY ["package.json", "package-lock.json*", "./"]
+WORKDIR /app
 
 RUN npm install
 
 RUN npm install -g typescript
-
-COPY app /app
 
 RUN tsc

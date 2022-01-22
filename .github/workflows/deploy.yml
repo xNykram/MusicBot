@@ -18,4 +18,6 @@ jobs:
         script: |
           cd /MusicBot
           sudo git pull
+          cd /app/src
+          sudo tsc
           sudo docker-compose up -d --build

@@ -6,7 +6,7 @@ import { Subscription, getSubscription } from '../bot';
 export const ShuffleCommand : Command = {
     name: 'shuffle',
     description: 'Mixes up the current queue.',
-    aliases: ['shuf'],
+    aliases: ['shuff','mix', 'muddle'],
     execute: shuffleQueue
 };
 
@@ -22,5 +22,5 @@ function shuffleQueue(message: Discord.Message) {
         [queue[i], queue[j]] = [queue[j], queue[i]];
     }
     message.reply("The queue was successfully mixed. Type !queue to see the new order of the queue.")
-
+    return true;
 }

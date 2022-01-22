@@ -28,9 +28,16 @@ describe("Empty queue", () => {
         bot.queue = []
     })
 
-    test("Command should have no effect", () => {
+    test("Command should have no effect when currentSong is null", () => {
+        bot.currentSong = null
         LoopCommand.execute(message)    
         expect(bot.queue.length).toBe(0)
+    })
+
+    test("Command should have effect when currentSong is not null (testcase: arg = 1)", () => {
+        bot.currentSong = {}
+        LoopCommand.execute(message)    
+        expect(bot.queue.length).toBe(1)
     })
 
     test("Message.reply should be called at least once", () => {

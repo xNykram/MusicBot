@@ -11,7 +11,7 @@ import {
 
 import { VideoSearchResult as VideoInfo } from 'yt-search';
 
-import { isInVoice } from './tools.js';
+import { isInVoice } from './tools';
 import { promisify } from 'util';
 
 import ytdl from 'ytdl-core';

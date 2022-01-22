@@ -13,7 +13,6 @@ const message = {
 
 const bot = getSubscription(message)
 
-
 const len = bot.queue.length
 ShuffleCommand.execute(message)
 test("Queue length should remain unchanged", () => {

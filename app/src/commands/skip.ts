@@ -8,15 +8,12 @@ export const SkipCommand : Command = {
     name: 'skip',
     description: 'Skips given amount of songs',
     aliases: ['s', 'sk', 'next', 'nxt'],
-    execute: skip
+    execute: skip,
+    requireVoiceChannel: true
 }
 
 async function skip(message: Discord.Message, args: string[]) {
     const bot: Subscription = getSubscription(message);
-    if (!bot.isInVoiceChannel(message)) {
-        message.reply("You need to be in a voice channel to do that.");
-        return false;
-    }
 
     const queue = bot.queue;
     const player = bot.audioPlayer;

@@ -12,6 +12,8 @@ import { QueueCommand } from './commands/queue';
 import { SkipCommand } from './commands/skip';
 import { ShuffleCommand } from './commands/shuffle';
 import { SearchCommand } from './commands/search';
+import { getSubscription, Subscription } from './bot';
+import { isInVoice } from './tools';
 
 var debug = false;
 
@@ -58,6 +60,12 @@ client.on('messageCreate', async message => {
     const commandName = args[0].substring(1).toLowerCase();
     const command = commandMap.get(commandName);
     if (command) {
+        const bot: Subscription = getSubscription(message)
+        if(command.requireVoiceChannel && !(isInVoice(message) && bot.isInVoiceChannel(message))) {
+            message.reply("You have to be in voice channel with bot to do that!")
+            return
+        }
+
         if (command.name == 'help') {
             command.execute(message, commandsList);
         }

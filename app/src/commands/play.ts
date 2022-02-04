@@ -42,7 +42,7 @@ async function addToQueue(message: Discord.Message, args: String[]) {
 
     if (video) {
         if (!bot.isInVoiceChannel()) {
-            JoinCommand.execute(message);
+            await JoinCommand.execute(message);
         }
         const serverQueue = bot.queue;
         const currentSong = bot.currentSong;

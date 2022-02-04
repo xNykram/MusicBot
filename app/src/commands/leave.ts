@@ -7,7 +7,8 @@ export const LeaveCommand : Command = {
     name: 'leave',
     description: 'Forces bot to leave voice channel',
     aliases: ['l', 'le', 'quit'],
-    execute: leave
+    execute: leave,
+    requireVoiceChannel: true
 };
 
 function leave(message: Discord.Message) {

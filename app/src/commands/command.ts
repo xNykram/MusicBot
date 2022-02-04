@@ -5,5 +5,6 @@ export interface Command {
     description: String,
     aliases: String[],
     execute: (message: Discord.Message, args?: any[]) => any
+    requireVoiceChannel?: boolean
 };
 

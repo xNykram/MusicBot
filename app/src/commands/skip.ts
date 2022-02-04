@@ -8,7 +8,8 @@ export const SkipCommand : Command = {
     name: 'skip',
     description: 'Skips given amount of songs',
     aliases: ['s', 'sk', 'next', 'nxt'],
-    execute: skip
+    execute: skip,
+    requireVoiceChannel: true
 }
 
 async function skip(message: Discord.Message, args: string[]) {

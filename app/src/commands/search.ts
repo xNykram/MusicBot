@@ -12,7 +12,7 @@ export const SearchCommand: Command = {
     name: 'search',
     description: 'Search for a given title',
     aliases: ['s', 'find', 'sear', 'yt', 'youtube'],
-    execute: searchQuery,
+    execute: searchQuery
 }
 
 export const AGREE_EMOJI: string = '✅'

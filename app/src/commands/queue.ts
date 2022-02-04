@@ -3,7 +3,6 @@ import Discord from 'discord.js';
 import { Command } from './command';
 import { Subscription, getSubscription } from '../bot';
 
-
 export const QueueCommand : Command = {
     name: 'queue',
     description: 'Shows tracks queue',

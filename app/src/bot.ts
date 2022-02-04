@@ -7,7 +7,8 @@ import {
     VoiceConnection,
     VoiceConnectionStatus,
     VoiceConnectionDisconnectReason,
-    entersState } from '@discordjs/voice';
+    entersState
+} from '@discordjs/voice';
 
 import { VideoSearchResult as VideoInfo } from 'yt-search';
 
@@ -19,7 +20,6 @@ import Discord from 'discord.js';
 
 const wait = promisify(setTimeout);
 const subscriptions = new Map();
-
 
 export class Subscription {
     voiceConnection: VoiceConnection;
@@ -186,10 +186,34 @@ export class Subscription {
         this.processQueue();
     }
 
-    async processQueue() {
-        if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle)) {
-            console.log(`lock: ${this.queueLock} state: ${this.audioPlayer.state.status}, len: ${this.queue.length}`);
+    /**
+     *  @param song - Song to remove
+     *  Removes last apperance of song in queue 
+     *  or stops music if queue doesn't contain song
+     *  and currently playing song is given song
+     */ 
+    async removeSong(song: VideoInfo): Promise<boolean> {
+        const lastIndex = this.queue.lastIndexOf(song) 
 
+        if(lastIndex == -1) {
+            if(this.currentSong == song) {
+                this.currentSong = null
+                this.audioPlayer.stop()
+                return true
+            }
+
+            return false
+        }
+
+        this.queue.splice(lastIndex, 1)
+
+        return true
+    }
+
+    async processQueue() {
+        if(this.audioPlayer == null)
+            this.audioPlayer = createAudioPlayer()
+        if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle)) {
             return;
         }
 

@@ -4,7 +4,10 @@
   "description": "A discord music bot",
   "main": "index.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "debug": "npm run build && node dist/index.js -d"
   },
   "author": "",
   "license": "ISC",

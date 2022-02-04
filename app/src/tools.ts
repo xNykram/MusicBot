@@ -1,6 +1,6 @@
 import { Message } from 'discord.js'
 
-export function isInVoice(message: Message){
+export function isInVoice(message: Message) {
     return message != null
         && message.guild != null
         && message.member != null

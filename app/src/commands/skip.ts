@@ -14,10 +14,6 @@ export const SkipCommand : Command = {
 
 async function skip(message: Discord.Message, args: string[]) {
     const bot: Subscription = getSubscription(message);
-    if (!bot.isInVoiceChannel(message)) {
-        message.reply("You need to be in a voice channel to do that.");
-        return false;
-    }
 
     const queue = bot.queue;
     const player = bot.audioPlayer;

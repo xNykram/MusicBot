@@ -10,3 +10,9 @@
 [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://https://discord.com/)
 
 ***
+
+## Usage
+
+- `npm run start` - Starts bot using standard login token
+- `npm run debug` - Starts bot using test login token, useful for testing new features
+- `npm run test` - Runs all tests in test directory

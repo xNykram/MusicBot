@@ -38,7 +38,7 @@ function join(message: Discord.Message) : VoiceConnection {
         message.reply("I can't join your channel");
     }
 
-    console.log('Joined to new VC');
+    bot.debug('Joined to new VC');
 
     return connection;
 }

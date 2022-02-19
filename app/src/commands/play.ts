@@ -42,6 +42,7 @@ async function addToQueue(message: Discord.Message, args: String[]) {
 
     if (video) {
         if (!bot.isInVoiceChannel()) {
+            bot.debug('Bot is not in VC @ PlayCommand')
             await JoinCommand.execute(message);
         }
         const serverQueue = bot.queue;

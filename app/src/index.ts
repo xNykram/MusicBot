@@ -18,8 +18,6 @@ import { isInVoice } from './tools';
 var debug = false;
 
 if (process.argv.includes('-d')) {
-    console.log(process.argv);
-    console.log(`Token: ${testToken}`);
     debug = true;
 }
 
@@ -61,8 +59,11 @@ client.on('messageCreate', async message => {
     const command = commandMap.get(commandName);
     if (command) {
         const bot: Subscription = getSubscription(message)
-        if(command.requireVoiceChannel && !(isInVoice(message) && bot.isInVoiceChannel(message))) {
+        let userInVoice = isInVoice(message)
+        let botInVoiceWithUser = bot.isInVoiceChannel(message)
+        if(command.requireVoiceChannel && (!userInVoice || !botInVoiceWithUser)) {
             message.reply("You have to be in voice channel with bot to do that!")
+            bot.debug(`User not in VC with bot. userInVoice: ${userInVoice}, botInVoiceWithUser: ${botInVoiceWithUser}`)
             return
         }
 

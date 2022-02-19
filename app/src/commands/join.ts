@@ -21,6 +21,11 @@ function join(message: Discord.Message) : VoiceConnection {
     const userVoiceChannel = message.member.voice.channel;
     const permissions = userVoiceChannel.permissionsFor(message.client.user);
 
+    if(bot.isInVoiceChannel(message)) {
+        message.reply('Bot is already in your voice channel.')
+        return null;
+    }
+
     if (!permissions.has('CONNECT')) {
         message.reply("I don't have permission to connect to this channel.");
         return null;

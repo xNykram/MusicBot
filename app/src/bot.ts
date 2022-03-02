@@ -11,7 +11,7 @@ import {
     getVoiceConnection
 } from '@discordjs/voice';
 
-import { VideoSearchResult as VideoInfo } from 'yt-search';
+import { VideoMetadataResult, VideoSearchResult } from 'yt-search';
 
 import { promisify } from 'util';
 
@@ -20,6 +20,8 @@ import Discord from 'discord.js';
 
 const wait = promisify(setTimeout);
 const subscriptions = new Map();
+
+type VideoInfo = VideoSearchResult | VideoMetadataResult;
 
 export class Subscription {
     guildId: string;
@@ -102,7 +104,7 @@ export class Subscription {
         }
     }
 
-    getVoice() : VoiceConnection { 
+    getVoice(): VoiceConnection {
         return getVoiceConnection(this.guildId)
     }
 
@@ -149,11 +151,11 @@ export class Subscription {
      */
     isInVoiceChannel(message?: Discord.Message): boolean {
         let voiceConnection = this.getVoice();
-        if(voiceConnection?.state?.status != VoiceConnectionStatus.Ready) {
+        if (voiceConnection?.state?.status != VoiceConnectionStatus.Ready) {
             this.debug(`Connection is not ready. Current status: ${voiceConnection?.state?.status}`);
             return false;
         }
-        if(message) {
+        if (message) {
             let isVoice = message.member?.voice?.channel?.isVoice()
             let userChannelId = message.member?.voice?.channelId
             let botChannelId = voiceConnection.joinConfig.channelId
@@ -179,7 +181,7 @@ export class Subscription {
         }
 
         const channel = message.member?.voice?.channel;
-        if(!channel) {
+        if (!channel) {
             this.debug(`Provided channel is not a voice channel. @ Bot.connectToVoiceChannel`)
             return null;
         }
@@ -267,7 +269,7 @@ export class Subscription {
      * This function have effect only if bot have been started with -d flag
      */
     debug(log: string) {
-        if(process.argv.includes('-d')) {
+        if (process.argv.includes('-d')) {
 
             let dateStr: string = new Date().toLocaleString();
             console.log(`[${this.guildName}] - ${dateStr} >> ${log}`)

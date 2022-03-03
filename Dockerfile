@@ -1,7 +1,5 @@
 FROM nikolaik/python-nodejs:latest
 
-MAINTAINER WebSoftDevs
-
 RUN apt-get install python -y
 
 COPY app .

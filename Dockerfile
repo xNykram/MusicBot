@@ -8,6 +8,4 @@ WORKDIR /app
 
 RUN npm install
 
-RUN npm install -g typescript
-
-RUN tsc
+RUN npx tsc

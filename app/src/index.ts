@@ -11,6 +11,7 @@ import { StopCommand } from './commands/stop';
 import { QueueCommand } from './commands/queue';
 import { SkipCommand } from './commands/skip';
 import { ShuffleCommand } from './commands/shuffle';
+import { LoopCommand } from './commands/loop';
 
 const client = new Discord.Client({ intents: 32509 });
 
@@ -23,6 +24,7 @@ const commandsList: Command[] = [
     SkipCommand,
     QueueCommand,
     ShuffleCommand,
+    LoopCommand,
 ];
 
 var commandMap = new Discord.Collection<String, Command>();

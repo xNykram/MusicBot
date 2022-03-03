@@ -19,6 +19,10 @@ async function addToQueue(message: Discord.Message, args: String[]) {
         message.reply("You need to be in a voice channel to do that.");
         return false;
     }
+    if(bot.isInVoiceChannel() && !bot.isInVoiceChannel(message)) {
+        message.reply("You need to be in a voice channel with bot to do that");
+        return false;
+    }
     if (args.length == 0 && !bot.currentSong) {
         message.reply("You need to specify a song to play.");
         return false;

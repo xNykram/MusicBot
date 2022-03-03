@@ -22,7 +22,12 @@ function showQueue(message: Discord.Message) {
     for (let i = 0; i < queue.length; i++) {
         let title = queue[i].title;
         let timestamp = queue[i].duration.timestamp;
-        buffer += `${i + 1}. ${title} (${timestamp})\n`
+        let songEntry = `${i + 1}. ${title} (${timestamp})\n`
+        if((buffer + songEntry).length >= 2000) {
+            message.reply(buffer);
+            buffer = '';
+        }
+        buffer += songEntry
     }
 
     message.reply(buffer);

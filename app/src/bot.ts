@@ -39,7 +39,7 @@ export class Subscription {
     }
 
 
-    subscribe(voiceConnection: VoiceConnection) {
+    subscribe(voiceConnection: VoiceConnection): void {
         this.audioPlayer = createAudioPlayer();
 
         voiceConnection.on('stateChange', (_, newState) => {
@@ -93,7 +93,7 @@ export class Subscription {
 
     /* Bot state functions */
 
-    async waitForState(state: VoiceConnectionStatus, timeout: number) {
+    async waitForState(state: VoiceConnectionStatus, timeout: number): Promise<boolean> {
         let voiceConnection = this.getVoice();
         try {
             await entersState(voiceConnection, state, timeout);
@@ -108,13 +108,13 @@ export class Subscription {
         return getVoiceConnection(this.guildId)
     }
 
-    async waitForRejoin() {
+    async waitForRejoin(): Promise<void> {
         let voiceConnection = this.getVoice();
         await wait((voiceConnection.rejoinAttempts + 1) * 5000);
         voiceConnection.rejoin();
     }
 
-    async stop() {
+    async stop(): Promise<void> {
         this.queue = [];
         this.currentSong = null;
         this.audioPlayer.stop(true);
@@ -123,7 +123,7 @@ export class Subscription {
             voiceConnection.disconnect()
     }
 
-    async leave() {
+    async leave(): Promise<boolean> {
         let voiceConnection = this.getVoice();
         if (this.isInVoiceChannel(null)) {
             voiceConnection.disconnect();
@@ -133,11 +133,11 @@ export class Subscription {
         return false;
     }
 
-    async pause() {
+    async pause(): Promise<void> {
         this.audioPlayer.pause(true)
     }
 
-    status() {
+    status(): AudioPlayerStatus {
         return this.audioPlayer.state.status
     }
 
@@ -166,7 +166,7 @@ export class Subscription {
         return true
     }
 
-    disconnectFromVoiceChannel() {
+    disconnectFromVoiceChannel(): boolean {
         let voiceConnection = this.getVoice();
         if (voiceConnection == null)
             return false;
@@ -175,7 +175,7 @@ export class Subscription {
         return true;
     }
 
-    connectToVoiceChannel(message: Discord.Message) {
+    connectToVoiceChannel(message: Discord.Message): VoiceConnection {
         if (this.isInVoiceChannel(message)) {
             return null;
         }
@@ -200,7 +200,7 @@ export class Subscription {
 
     /* Queue processing functions */
 
-    async enqueue(song: VideoInfo) {
+    async enqueue(song: VideoInfo): Promise<void> {
         this.queue.push(song);
         this.processQueue();
     }
@@ -229,7 +229,7 @@ export class Subscription {
         return true
     }
 
-    async processQueue() {
+    async processQueue(): Promise<void> {
         if (this.audioPlayer == null)
             this.audioPlayer = createAudioPlayer()
         if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle)) {
@@ -268,7 +268,7 @@ export class Subscription {
      * Prints debug info formatted with guild name and time.
      * This function have effect only if bot have been started with -d flag
      */
-    debug(log: string) {
+    debug(log: string): void {
         if (process.argv.includes('-d')) {
 
             let dateStr: string = new Date().toLocaleString();
@@ -277,7 +277,7 @@ export class Subscription {
     }
 }
 
-export function getSubscription(message: Discord.Message) {
+export function getSubscription(message: Discord.Message): Subscription {
     var sub = subscriptions.get(message.guild.id);
     if (sub)
         return sub;

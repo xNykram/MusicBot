@@ -9,5 +9,5 @@ services:
     ports:
       - "8000:8000"
     command: >
-      bash -c "node dist/index.js"
+      bash -c "npm run start"
     network_mode: bridge

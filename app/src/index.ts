@@ -71,7 +71,9 @@ client.on('messageCreate', async message => {
             command.execute(message, commandsList);
         }
         else {
-            command.execute(message, args.splice(1));
+            command.execute(message, args.splice(1)).catch(reason => {
+                bot.debug(`Cought error: ${reason}`)
+            });
         }
     }
     else {

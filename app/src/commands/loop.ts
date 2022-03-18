@@ -8,7 +8,7 @@ export const LoopCommand: Command = {
     execute: loopQueue
 }
 
-function loopQueue(message: Message, args: string[]) {
+async function loopQueue(message: Message, args: string[]): Promise<void> {
     //TODO implement loop command
 }
 

@@ -10,7 +10,7 @@ export const QueueCommand : Command = {
     execute: showQueue
 };
 
-function showQueue(message: Discord.Message) {
+async function showQueue(message: Discord.Message): Promise<void> {
     const bot: Subscription = getSubscription(message);
     const currentSong = bot.currentSong;
     const queue = bot.queue;

@@ -13,7 +13,7 @@ export const PlayCommand: Command = {
     execute: addToQueue
 };
 
-async function addToQueue(message: Discord.Message, args: String[]) {
+async function addToQueue(message: Discord.Message, args: String[]): Promise<boolean> {
     const bot: Subscription = getSubscription(message);
     if (!isInVoice(message)) {
         message.reply("You need to be in a voice channel to do that.");

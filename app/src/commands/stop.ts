@@ -11,7 +11,7 @@ export const StopCommand : Command = {
     requireVoiceChannel: true
 };
 
-function stopBot(message: Discord.Message) {
+async function stopBot(message: Discord.Message): Promise<void> {
     const bot: Subscription = getSubscription(message);
     bot.stop();
 }

@@ -11,7 +11,7 @@ export const JoinCommand : Command = {
     execute: join
 };
 
-function join(message: Discord.Message) : VoiceConnection {
+async function join(message: Discord.Message) : Promise<VoiceConnection> {
     if (!isInVoice(message)) {
         message.reply('You must be in voice channel to do that.');
         return null;

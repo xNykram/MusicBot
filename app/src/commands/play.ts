@@ -94,6 +94,8 @@ async function addToQueue(message: Discord.Message, args: String[]): Promise<boo
  * or null if url is not a vaild
  */
 function getIdFromUrl(url: string): string[] {
+    if(!url.includes('youtube.com/watch'))
+        return null;
     let split = url.split('=');
     if (split.length == 0) {
         return null;

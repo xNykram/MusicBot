@@ -9,5 +9,5 @@ services:
     ports:
       - "8000:8000"
     command: >
-      bash -c "npm run start"
+      bash -c "npm run debug"
     network_mode: musicbot

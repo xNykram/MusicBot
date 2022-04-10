@@ -1,6 +1,4 @@
-FROM nikolaik/python-nodejs:latest
-
-RUN apt-get install python -y
+FROM node:17.8.0
 
 COPY app .
 
@@ -8,4 +6,6 @@ WORKDIR /app
 
 RUN npm install
 
-RUN npx tsc
+RUN npm install typescript@4.5.4 -g
+
+RUN tsc

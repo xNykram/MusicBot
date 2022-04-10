@@ -13,10 +13,14 @@ export const PlayCommand: Command = {
     execute: addToQueue
 };
 
-async function addToQueue(message: Discord.Message, args: String[]) {
+async function addToQueue(message: Discord.Message, args: String[]): Promise<boolean> {
     const bot: Subscription = getSubscription(message);
     if (!isInVoice(message)) {
         message.reply("You need to be in a voice channel to do that.");
+        return false;
+    }
+    if(bot.isInVoiceChannel() && !bot.isInVoiceChannel(message)) {
+        message.reply("You need to be in a voice channel with bot to do that");
         return false;
     }
     if (args.length == 0 && !bot.currentSong) {
@@ -90,6 +94,8 @@ async function addToQueue(message: Discord.Message, args: String[]) {
  * or null if url is not a vaild
  */
 function getIdFromUrl(url: string): string[] {
+    if(!url.includes('youtube.com/watch'))
+        return null;
     let split = url.split('=');
     if (split.length == 0) {
         return null;

@@ -10,7 +10,7 @@ export const LeaveCommand : Command = {
     requireVoiceChannel: true
 };
 
-function leave(message: Discord.Message) {
+async function leave(message: Discord.Message): Promise<void> {
     const bot : Subscription = getSubscription(message);
     bot.disconnectFromVoiceChannel();
 }

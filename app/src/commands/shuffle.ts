@@ -11,7 +11,7 @@ export const ShuffleCommand : Command = {
     requireVoiceChannel: true
 };
 
-function shuffleQueue(message: Discord.Message) {
+async function shuffleQueue(message: Discord.Message): Promise<boolean> {
     const bot: Subscription = getSubscription(message);
     const queue = bot.queue;
     if (queue.length < 2){

@@ -14,6 +14,7 @@ import { ShuffleCommand } from './commands/shuffle';
 import { SearchCommand } from './commands/search';
 import { getSubscription, Subscription } from './bot';
 import { isInVoice } from './tools';
+import { ChangelogCommand } from './commands/changelog';
 
 var debug = false;
 
@@ -34,7 +35,8 @@ const commandsList: Command[] = [
     SkipCommand,
     QueueCommand,
     ShuffleCommand,
-    SearchCommand
+    SearchCommand,
+    ChangelogCommand,
 ];
 
 var commandMap = new Discord.Collection<String, Command>();
@@ -71,7 +73,9 @@ client.on('messageCreate', async message => {
             command.execute(message, commandsList);
         }
         else {
-            command.execute(message, args.splice(1));
+            command.execute(message, args.splice(1)).catch(reason => {
+                bot.debug(`Cought error: ${reason}`)
+            });
         }
     }
     else {

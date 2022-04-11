@@ -18,21 +18,20 @@ function displayChangelog(message: Discord.Message) {
 }
 
 async function getChangelogs (message: Discord.Message) {
-    try {
-        const rows = await Changelog.findAll({
-            attributes: ['author', 'title', 'description', 'createdAt'],
-            limit: 5,
-        });
-        let obj = JSON.stringify(rows, null, 2)
-        let json = JSON.parse(obj)
-        let buffer: string = '';
-        for (let i = 0; i < Object.keys(json).length; i++){
-            buffer += "```"+json[i]['createdAt']+" \n"+ "Title: " +json[i]['title'] + "\nAuthor: "+ json[i]['author'] +"\n"
-            +"Description: "+ json[i]['description'] +"```";
-        }
-        return message.reply(buffer);
+    const rows = await Changelog.findAll({
+        attributes: ['author', 'title', 'description', 'createdAt'],
+        limit: 5,
+    });
+    let obj = JSON.stringify(rows, null, 2)
+    let json = JSON.parse(obj)
+    let buffer: string = '';
+    for (let i = 0; i < Object.keys(json).length; i++){
+        buffer += "```"+json[i]['createdAt']+" \n"+ "Title: " +json[i]['title'] + "\nAuthor: "+ json[i]['author'] +"\n"
+        +"Description: "+ json[i]['description'] +"```";
     }
-    catch (error) {
-        return message.reply('Something went wrong, please try again later.');
+    if (buffer.length == 0) {
+        buffer = "No changelogs found."
     }
+    return message.reply(buffer);
+
 }

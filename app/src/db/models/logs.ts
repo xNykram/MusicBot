@@ -16,7 +16,7 @@ export const Logs = sequelize.define('Log', {
     },
     message: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     failed: {
         type: DataTypes.BOOLEAN,

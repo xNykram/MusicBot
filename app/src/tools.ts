@@ -5,7 +5,7 @@ export function isInVoice(message: Message) {
     return message.member?.voice?.channel != null
 }
 
-export async function logMessage(server: string, serverID: number, taskType: string, error: unknown, status: boolean) {
+export async function logMessage(server: string, serverID: string, taskType: string, error: unknown, status: boolean) {
     try{
         const log = await Logs.create({
             server_name: server,

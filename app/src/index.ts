@@ -15,6 +15,7 @@ import { SearchCommand } from './commands/search';
 import { getSubscription, Subscription } from './bot';
 import { isInVoice } from './tools';
 import { ChangelogCommand } from './commands/changelog';
+import { RemoveCommand } from './commands/remove';
 
 var debug = false;
 
@@ -37,6 +38,7 @@ const commandsList: Command[] = [
     ShuffleCommand,
     SearchCommand,
     ChangelogCommand,
+    RemoveCommand,
 ];
 
 var commandMap = new Discord.Collection<String, Command>();

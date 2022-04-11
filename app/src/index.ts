@@ -13,7 +13,7 @@ import { SkipCommand } from './commands/skip';
 import { ShuffleCommand } from './commands/shuffle';
 import { SearchCommand } from './commands/search';
 import { getSubscription, Subscription } from './bot';
-import { isInVoice } from './tools';
+import { isInVoice, logMessage } from './tools';
 import { ChangelogCommand } from './commands/changelog';
 import { RemoveCommand } from './commands/remove';
 
@@ -75,7 +75,12 @@ client.on('messageCreate', async message => {
             command.execute(message, commandsList);
         }
         else {
-            command.execute(message, args.splice(1)).catch(reason => {
+            command.execute(message, args.splice(1))
+            .then(() => {
+                logMessage(message.guild.name, message.guild.id, message.content, null, false)
+            })
+            .catch(reason => {
+                logMessage(message.guild.name, message.guild.id ,message.content, reason.toString(), true)
                 bot.debug(`Cought error: ${reason}`)
             });
         }

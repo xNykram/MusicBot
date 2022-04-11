@@ -33,5 +33,4 @@ async function getChangelogs (message: Discord.Message) {
         buffer = "No changelogs found."
     }
     return message.reply(buffer);
-
 }

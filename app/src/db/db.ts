@@ -4,7 +4,6 @@ const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize(dbName, dbLogin, dbPass, {
     host: dbHostname,
     dialect: 'mssql',
-    logging: false,
     pool: {
         max: 5,
         min: 0,

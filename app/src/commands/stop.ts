@@ -7,10 +7,11 @@ export const StopCommand : Command = {
     name: 'stop',
     description: 'Forces bot to stop playing music and leave.',
     aliases: ['s', 'st', 'end'],
-    execute: stopBot
+    execute: stopBot,
+    requireVoiceChannel: true
 };
 
-function stopBot(message: Discord.Message) {
+async function stopBot(message: Discord.Message): Promise<void> {
     const bot: Subscription = getSubscription(message);
     bot.stop();
 }

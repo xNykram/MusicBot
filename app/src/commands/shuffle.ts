@@ -7,10 +7,11 @@ export const ShuffleCommand : Command = {
     name: 'shuffle',
     description: 'Mixes up the current queue.',
     aliases: ['shuff','mix', 'muddle'],
-    execute: shuffleQueue
+    execute: shuffleQueue,
+    requireVoiceChannel: true
 };
 
-function shuffleQueue(message: Discord.Message) {
+async function shuffleQueue(message: Discord.Message): Promise<boolean> {
     const bot: Subscription = getSubscription(message);
     const queue = bot.queue;
     if (queue.length < 2){

@@ -7,11 +7,12 @@ import {
     VoiceConnection,
     VoiceConnectionStatus,
     VoiceConnectionDisconnectReason,
-    entersState } from '@discordjs/voice';
+    entersState,
+    getVoiceConnection
+} from '@discordjs/voice';
 
-import { VideoSearchResult as VideoInfo } from 'yt-search';
+import { VideoMetadataResult, VideoSearchResult } from 'yt-search';
 
-import { isInVoice } from './tools';
 import { promisify } from 'util';
 
 import ytdl from 'ytdl-core';
@@ -20,38 +21,41 @@ import Discord from 'discord.js';
 const wait = promisify(setTimeout);
 const subscriptions = new Map();
 
+type VideoInfo = VideoSearchResult | VideoMetadataResult;
 
 export class Subscription {
-    voiceConnection: VoiceConnection;
+    guildId: string;
+    guildName: string;
     audioPlayer: AudioPlayer;
     queue: VideoInfo[];
     queueLock = false;
     readyLock = false;
     currentSong: VideoInfo;
 
-    constructor() {
+    constructor(guild: Discord.Guild) {
+        this.guildId = guild.id;
+        this.guildName = guild.name;
         this.queue = [];
     }
 
-    subscribe(voiceConnection: VoiceConnection) {
-        this.voiceConnection = voiceConnection;
+
+    subscribe(voiceConnection: VoiceConnection): void {
         this.audioPlayer = createAudioPlayer();
 
-        this.voiceConnection.on('stateChange', (_, newState) => {
+        voiceConnection.on('stateChange', (_, newState) => {
             if (newState.status === VoiceConnectionStatus.Disconnected) {
                 if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
                     if (!this.waitForState(VoiceConnectionStatus.Connecting, 5000)) {
-                        this.voiceConnection.destroy();
+                        voiceConnection.destroy();
                     }
                 }
-                else if (this.voiceConnection.rejoinAttempts < 5) {
+                else if (voiceConnection.rejoinAttempts < 5) {
                     //in this case we can try to reconnect
                     this.waitForRejoin();
                 }
                 else {
                     //no more attempts :(
-                    this.voiceConnection.destroy();
-                    this.voiceConnection = null;
+                    voiceConnection.destroy();
                 }
             }
             else if (newState.status === VoiceConnectionStatus.Destroyed) {
@@ -61,8 +65,8 @@ export class Subscription {
                 (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)) {
                 this.readyLock = true;
                 if (!this.waitForState(VoiceConnectionStatus.Ready, 20000)) {
-                    if (this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed)
-                        this.voiceConnection.destroy();
+                    if (voiceConnection.state.status !== VoiceConnectionStatus.Destroyed)
+                        voiceConnection.destroy();
                 }
                 this.readyLock = false;
             }
@@ -84,14 +88,15 @@ export class Subscription {
             this.processQueue();
         });
 
-        this.voiceConnection.subscribe(this.audioPlayer);
+        voiceConnection.subscribe(this.audioPlayer);
     }
 
     /* Bot state functions */
 
-    async waitForState(state: VoiceConnectionStatus, timeout: number) {
+    async waitForState(state: VoiceConnectionStatus, timeout: number): Promise<boolean> {
+        let voiceConnection = this.getVoice();
         try {
-            await entersState(this.voiceConnection, state, timeout);
+            await entersState(voiceConnection, state, timeout);
             return true;
         }
         catch {
@@ -99,73 +104,87 @@ export class Subscription {
         }
     }
 
-    async waitForRejoin() {
-        await wait((this.voiceConnection.rejoinAttempts + 1) * 5000);
-        this.voiceConnection.rejoin();
+    getVoice(): VoiceConnection {
+        return getVoiceConnection(this.guildId)
     }
 
-    async stop() {
+    async waitForRejoin(): Promise<void> {
+        let voiceConnection = this.getVoice();
+        await wait((voiceConnection.rejoinAttempts + 1) * 5000);
+        voiceConnection.rejoin();
+    }
+
+    async stop(): Promise<void> {
         this.queue = [];
         this.currentSong = null;
         this.audioPlayer.stop(true);
+        let voiceConnection = this.getVoice();
         if (this.isInVoiceChannel(null))
-            this.voiceConnection.disconnect()
+            voiceConnection.disconnect()
     }
 
-    async leave() {
+    async leave(): Promise<boolean> {
+        let voiceConnection = this.getVoice();
         if (this.isInVoiceChannel(null)) {
-            this.voiceConnection.disconnect();
+            voiceConnection.disconnect();
             return true;
         }
 
         return false;
     }
 
-    async pause() {
+    async pause(): Promise<void> {
         this.audioPlayer.pause(true)
     }
 
-    status() {
+    status(): AudioPlayerStatus {
         return this.audioPlayer.state.status
     }
 
     /* VC functions */
 
-    isInVoiceChannel(message?: Discord.Message) {
-        if (this.voiceConnection == null)
+    /**
+     * it returns true in two cases:
+     * - message is present and bot is in the same voice channel as message sender
+     * - message is not present and bot is connected to any voice channel
+     * 
+     */
+    isInVoiceChannel(message?: Discord.Message): boolean {
+        let voiceConnection = this.getVoice();
+        if (voiceConnection?.state?.status != VoiceConnectionStatus.Ready) {
+            this.debug(`Connection is not ready. Current status: ${voiceConnection?.state?.status}`);
             return false;
+        }
         if (message) {
-            if (!isInVoice(message))
-                return false;
-            const channelId = message.member.voice.channelId;
-
-            return channelId === this.voiceConnection.joinConfig.channelId;
+            let isVoice = message.member?.voice?.channel?.isVoice()
+            let userChannelId = message.member?.voice?.channelId
+            let botChannelId = voiceConnection.joinConfig.channelId
+            this.debug(`isVoice:${isVoice}, userChannelId=${userChannelId}, botChannelId=${botChannelId}`)
+            return isVoice && (userChannelId == botChannelId)
         }
 
-        return this.voiceConnection.state.status !== VoiceConnectionStatus.Destroyed
+        return true
     }
 
-    getVoiceChannel() {
-        if (this.voiceConnection == null)
-            return null;
-
-        return this.voiceConnection.joinConfig.channelId;
-    }
-
-    disconnectFromVoiceChannel() {
-        if (this.voiceConnection == null)
+    disconnectFromVoiceChannel(): boolean {
+        let voiceConnection = this.getVoice();
+        if (voiceConnection == null)
             return false;
 
-        this.voiceConnection.disconnect();
+        voiceConnection.disconnect();
         return true;
     }
 
-    connectToVoiceChannel(message: Discord.Message) {
+    connectToVoiceChannel(message: Discord.Message): VoiceConnection {
         if (this.isInVoiceChannel(message)) {
             return null;
         }
 
-        const channel = message.member.voice.channel;
+        const channel = message.member?.voice?.channel;
+        if (!channel) {
+            this.debug(`Provided channel is not a voice channel. @ Bot.connectToVoiceChannel`)
+            return null;
+        }
         const connection = joinVoiceChannel({
             channelId: channel.id,
             guildId: channel.guild.id,
@@ -181,15 +200,39 @@ export class Subscription {
 
     /* Queue processing functions */
 
-    async enqueue(song: VideoInfo) {
+    async enqueue(song: VideoInfo): Promise<void> {
         this.queue.push(song);
         this.processQueue();
     }
 
-    async processQueue() {
-        if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle)) {
-            console.log(`lock: ${this.queueLock} state: ${this.audioPlayer.state.status}, len: ${this.queue.length}`);
+    /**
+     *  @param song - Song to remove
+     *  Removes last apperance of song in queue 
+     *  or stops music if queue doesn't contain song
+     *  and currently playing song is given song
+     */
+    async removeSong(song: VideoInfo): Promise<boolean> {
+        const lastIndex = this.queue.lastIndexOf(song)
 
+        if (lastIndex == -1) {
+            if (this.currentSong == song) {
+                this.currentSong = null
+                this.audioPlayer.stop()
+                return true
+            }
+
+            return false
+        }
+
+        this.queue.splice(lastIndex, 1)
+
+        return true
+    }
+
+    async processQueue(): Promise<void> {
+        if (this.audioPlayer == null)
+            this.audioPlayer = createAudioPlayer()
+        if (this.queueLock || (this.audioPlayer.state.status !== AudioPlayerStatus.Idle)) {
             return;
         }
 
@@ -220,15 +263,28 @@ export class Subscription {
             this.processQueue();
         }
     }
+
+    /**
+     * Prints debug info formatted with guild name and time.
+     * This function have effect only if bot have been started with -d flag
+     */
+    debug(log: string): void {
+        if (process.argv.includes('-d')) {
+
+            let dateStr: string = new Date().toLocaleString();
+            console.log(`[${this.guildName}] - ${dateStr} >> ${log}`)
+        }
+    }
 }
 
-export function getSubscription(message: Discord.Message) {
+export function getSubscription(message: Discord.Message): Subscription {
     var sub = subscriptions.get(message.guild.id);
     if (sub)
         return sub;
 
-    sub = new Subscription();
+    sub = new Subscription(message.guild);
     subscriptions.set(message.guild.id, sub);
+    sub.debug(`Bot instance created.`)
 
     return sub;
 }

@@ -8,9 +8,7 @@ export const LoopCommand: Command = {
     aliases: [],
     execute: loopQueue
 }
-
-function loopQueue(message: Message, args: string[]) {
-
+async function loopQueue(message: Message, args: string[]): Promise<void> {
     const bot: Subscription = getSubscription(message);
     let parseArgs : number
 

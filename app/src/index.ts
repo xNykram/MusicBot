@@ -1,7 +1,7 @@
 // Setup
 import { prefix, token, testToken } from './config.json';
 import { Command } from './commands/command';
-import Discord from 'discord.js';
+import Discord, { Client, Intents } from 'discord.js';
 
 import { HelpCommand } from './commands/help';
 import { JoinCommand } from './commands/join';
@@ -12,8 +12,21 @@ import { QueueCommand } from './commands/queue';
 import { SkipCommand } from './commands/skip';
 import { ShuffleCommand } from './commands/shuffle';
 import { LoopCommand } from './commands/loop';
+import { SearchCommand } from './commands/search';
+import { getSubscription, Subscription } from './bot';
+import { isInVoice, logMessage } from './tools';
+import { ChangelogCommand } from './commands/changelog';
+import { RemoveCommand } from './commands/remove';
 
-const client = new Discord.Client({ intents: 32509 });
+var debug = false;
+
+if (process.argv.includes('-d')) {
+    debug = true;
+}
+
+const intents = new Intents(32509)
+intents.add(Intents.FLAGS.GUILD_MESSAGE_REACTIONS)
+const client = new Client({ intents });
 
 const commandsList: Command[] = [
     HelpCommand,
@@ -24,6 +37,9 @@ const commandsList: Command[] = [
     SkipCommand,
     QueueCommand,
     ShuffleCommand,
+    SearchCommand,
+    ChangelogCommand,
+    RemoveCommand,
     LoopCommand,
 ];
 
@@ -33,7 +49,6 @@ for (const command of commandsList) {
     commandMap.set(command.name, command);
     command.aliases.forEach(alias => commandMap.set(alias.toLowerCase(), command));
 }
-
 
 client.once('ready', () => {
     if (debug)
@@ -49,11 +64,27 @@ client.on('messageCreate', async message => {
     const commandName = args[0].substring(1).toLowerCase();
     const command = commandMap.get(commandName);
     if (command) {
-        if(command.name == 'help'){
+        const bot: Subscription = getSubscription(message)
+        let userInVoice = isInVoice(message)
+        let botInVoiceWithUser = bot.isInVoiceChannel(message)
+        if(command.requireVoiceChannel && (!userInVoice || !botInVoiceWithUser)) {
+            message.reply("You have to be in voice channel with bot to do that!")
+            bot.debug(`User not in VC with bot. userInVoice: ${userInVoice}, botInVoiceWithUser: ${botInVoiceWithUser}`)
+            return
+        }
+
+        if (command.name == 'help') {
             command.execute(message, commandsList);
         }
-        else{
-            command.execute(message, args.splice(1));
+        else {
+            command.execute(message, args.splice(1))
+            .then(() => {
+                logMessage(message.guild.name, message.guild.id, message.content, null, false)
+            })
+            .catch(reason => {
+                logMessage(message.guild.name, message.guild.id ,message.content, reason.toString(), true)
+                bot.debug(`Cought error: ${reason}`)
+            });
         }
     }
     else {
@@ -61,13 +92,8 @@ client.on('messageCreate', async message => {
     }
 })
 
-var debug = false;
-
-if (process.argv.includes('-d')) {
-    console.log(process.argv);
-    console.log(`Token: ${testToken}`);
+if (debug) {
     client.login(testToken);
-    debug = true;
 }
 else {
     client.login(token);

@@ -16,9 +16,6 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         script: |
-          cd /MusicBot
+          cd MusicBot
           sudo git pull
-          cd app/src
-          sudo tsc
-          cd /MusicBot
-          sudo docker-compose up -d --build
+          sudo docker-compose -f docker-compose.yml up -d --build

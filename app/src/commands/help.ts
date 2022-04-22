@@ -8,7 +8,7 @@ export const HelpCommand : Command = {
     execute: printHelp
 };
 
-function printHelp(message: Discord.Message, commands: Command[]) : boolean{
+async function printHelp(message: Discord.Message, commands: Command[]): Promise<boolean> {
     let helpMsg = 'Available commands:\n';
 
     for (const command of commands){

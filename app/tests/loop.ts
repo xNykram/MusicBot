@@ -20,6 +20,7 @@ afterEach(() => {
 })
 
 test("Message.reply should be called at least once", () => {
+    LoopCommand.execute(message,[]);
     expect(fakeReply.mock.calls.length).toBeGreaterThanOrEqual(1)
 })
 

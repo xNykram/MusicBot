@@ -11,6 +11,7 @@ import { StopCommand } from './commands/stop';
 import { QueueCommand } from './commands/queue';
 import { SkipCommand } from './commands/skip';
 import { ShuffleCommand } from './commands/shuffle';
+import { LoopCommand } from './commands/loop';
 import { SearchCommand } from './commands/search';
 import { getSubscription, Subscription } from './bot';
 import { isInVoice, logMessage } from './tools';
@@ -39,6 +40,7 @@ const commandsList: Command[] = [
     SearchCommand,
     ChangelogCommand,
     RemoveCommand,
+    LoopCommand,
 ];
 
 var commandMap = new Discord.Collection<String, Command>();

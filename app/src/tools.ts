@@ -1,5 +1,8 @@
-import { Message } from 'discord.js'
+import { Client, Message } from 'discord.js'
 import { Logs } from './db/models/logs';
+import prettyMilliseconds from 'pretty-ms';
+import os from 'os'
+import { sequelize } from './db/db';
 
 export function isInVoice(message: Message) {
     return message.member?.voice?.channel != null
@@ -7,7 +10,7 @@ export function isInVoice(message: Message) {
 
 export async function logMessage(server: string, serverID: string, taskType: string, error: unknown, status: boolean) {
     try{
-        const log = await Logs.create({
+        await Logs.create({
             server_name: server,
             server_id: serverID,
             task: taskType,
@@ -16,6 +19,31 @@ export async function logMessage(server: string, serverID: string, taskType: str
         })
     }
     catch(error) {
-        console.log(error)
+        console.log(error);
     }
+}
+
+export function getUptime(client: Client) {
+    return prettyMilliseconds(client.uptime);
+}
+
+export function getFreeRAM(){
+    return Math.round(os.freemem() / (1024 * 1024))
+}
+
+export async function checkDBConnection(){
+
+    const AGREE_EMOJI: string = '✅'
+    const DISAGREE_EMOJI: string = '❌'
+    let status: string;
+    
+    await sequelize.authenticate()
+    .then(() => {
+        status = AGREE_EMOJI;
+    })
+    .catch(() => {
+        status = DISAGREE_EMOJI;
+    });
+
+    return status;
 }

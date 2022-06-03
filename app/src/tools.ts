@@ -1,5 +1,6 @@
 import { Client, Message } from 'discord.js'
 import { Logs } from './db/models/logs';
+import { Server } from './db/models/servers'
 import prettyMilliseconds from 'pretty-ms';
 import os from 'os'
 import { sequelize } from './db/db';
@@ -46,4 +47,19 @@ export async function checkDBConnection(){
     });
 
     return status;
+}
+
+export async function logServer(serverName: string, amountOfUsers: number) {
+    try{
+        await Server.findOrCreate({
+            where: {server_name: serverName},
+            defaults: {
+                server_name: serverName,
+                amount_of_users: amountOfUsers,
+            }
+        });
+    }
+    catch(error) {
+        console.log(error);
+    }
 }

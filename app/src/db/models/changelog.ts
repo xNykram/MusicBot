@@ -18,5 +18,5 @@ export const Changelog = sequelize.define('Changelog', {
         type: DataTypes.DATE,
         allowNull: true
     }
-}, { sequelize, modelName: 'changelog' }, { freezeTableName: true });
+}, { freezeTableName: true }, { sequelize, modelName: 'changelog'});
  

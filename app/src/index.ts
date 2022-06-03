@@ -2,6 +2,7 @@
 import { prefix, token, testToken } from './config.json';
 import { Command } from './commands/command';
 import Discord, { Client, Intents } from 'discord.js';
+import { logServer } from './tools';
 
 import { HelpCommand } from './commands/help';
 import { JoinCommand } from './commands/join';
@@ -53,6 +54,9 @@ for (const command of commandsList) {
 }
 
 client.once('ready', () => {
+    client.guilds.cache.forEach(guild => {
+        logServer(guild.name, guild.memberCount);
+    });
     if (debug)
         console.log("Bot started in debug mode.");
     else

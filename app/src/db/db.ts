@@ -16,7 +16,10 @@ const sequelize = new Sequelize(dbName, dbLogin, dbPass, {
         useUTC: false,
         dateFirst: 1
       }
-    }
+    },
+    define: {
+      timestamps: false
+    },
   });
-
+(async () => {await sequelize.sync()})();
   export { sequelize };

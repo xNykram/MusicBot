@@ -27,5 +27,5 @@ export const Logs = sequelize.define('Log', {
         defaultValue: DataTypes.NOW,
         allowNull: true
     }
-}, { timestamps: false }, { sequelize, modelName: 'Log' }, { freezeTableName: true });
+}, { sequelize, modelName: 'Log' });
  

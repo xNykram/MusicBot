@@ -17,6 +17,7 @@ import { getSubscription, Subscription } from './bot';
 import { isInVoice, logMessage } from './tools';
 import { ChangelogCommand } from './commands/changelog';
 import { RemoveCommand } from './commands/remove';
+import { StatusCommand } from './commands/status';
 
 var debug = false;
 
@@ -41,6 +42,7 @@ const commandsList: Command[] = [
     ChangelogCommand,
     RemoveCommand,
     LoopCommand,
+    StatusCommand,
 ];
 
 var commandMap = new Discord.Collection<String, Command>();

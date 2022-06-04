@@ -1,6 +1,5 @@
 import Discord, { Message } from 'discord.js';
 import { Command } from './command';
-import { getUptime, getFreeRAM, checkDBConnection } from '../tools';
 import { sequelize } from '../db/db';
 const { QueryTypes } = require('sequelize');
 

@@ -7,6 +7,10 @@ export const Server = sequelize.define('Servers', {
         primaryKey: true,
         autoIncrement: true
     },
+    server_id: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     server_name: {
         type: DataTypes.STRING,
         allowNull: false

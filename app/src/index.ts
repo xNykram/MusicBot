@@ -19,6 +19,7 @@ import { isInVoice, logMessage } from './tools';
 import { ChangelogCommand } from './commands/changelog';
 import { RemoveCommand } from './commands/remove';
 import { StatusCommand } from './commands/status';
+import { TopSongsCommand } from './commands/top'
 
 var debug = false;
 
@@ -44,6 +45,8 @@ const commandsList: Command[] = [
     RemoveCommand,
     LoopCommand,
     StatusCommand,
+    TopSongsCommand,
+    
 ];
 
 var commandMap = new Discord.Collection<String, Command>();
@@ -55,7 +58,7 @@ for (const command of commandsList) {
 
 client.once('ready', () => {
     client.guilds.cache.forEach(guild => {
-        logServer(guild.name, guild.memberCount);
+        logServer(guild.id ,guild.name, guild.memberCount);
     });
     if (debug)
         console.log("Bot started in debug mode.");
@@ -85,10 +88,10 @@ client.on('messageCreate', async message => {
         else {
             command.execute(message, args.splice(1))
             .then(() => {
-                logMessage(message.guild.name, message.guild.id, message.content, null, false)
+                logMessage(message.guild.name, message.guild.id, message.content, null, false, null)
             })
             .catch(reason => {
-                logMessage(message.guild.name, message.guild.id ,message.content, reason.toString(), true)
+                logMessage(message.guild.name, message.guild.id ,message.content, reason.toString(), true, null)
                 bot.debug(`Cought error: ${reason}`)
             });
         }

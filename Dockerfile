@@ -1,6 +1,6 @@
 FROM node:17.8.0
 
-COPY app .
+COPY app /app
 
 WORKDIR /app
 

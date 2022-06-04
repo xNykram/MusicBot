@@ -23,24 +23,24 @@ async function printTopSongs(message: Discord.Message, args: string[]){
     }
     
     if (args.length == 0) {
-        const topGuild = await sequelize.query('SELECT * FROM vwTopStats WHERE server_id = ' + message.guild.id + ' ORDER BY Amount DESC', {
+        const topGuild = await sequelize.query('SELECT TOP 3 * FROM vwTopStats WHERE server_id = ' + message.guild.id + ' ORDER BY Amount DESC', {
             type: QueryTypes.SELECT,
             raw: true,
         });
         buffer += 'Songs ranking for server: '+ message.guild.name +' (TOP 3): \n'
-        for (let i = 0; i < 3; i++){
+        for (let i = 0; i < topGuild.length; i++){
             buffer += ''+ (i+1) +'.' + ' ' + topGuild[i].Song + ' [Played '+ topGuild[i].Amount + ' times]'+'\n'
         }
     }
 
     else {
 
-        const topGlobal = await sequelize.query('SELECT * FROM vwTopStats ORDER BY Amount DESC', {
+        const topGlobal = await sequelize.query('SELECT TOP 3 * FROM vwTopStats ORDER BY Amount DESC', {
             type: QueryTypes.SELECT,
             raw: true,
         });
             buffer += 'Global songs ranking (TOP 3): \n'
-        for (let i = 0; i < 3; i++){
+        for (let i = 0; i < topGlobal.length; i++){
             buffer += ''+ (i+1) +'.' + ' ' + topGlobal[i].Song + ' [Played '+ topGlobal[i].Amount + ' times]'+'\n'
         }
 

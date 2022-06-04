@@ -258,7 +258,6 @@ export class Subscription {
             this.audioPlayer.play(resource);
             this.queueLock = false;
             logMessage(this.guildName, this.guildId, 'play', this.currentSong.title, false, this.currentSong.videoId);
-            console.log(this.currentSong.videoId);
         }
         catch (error) {
             this.queueLock = false;

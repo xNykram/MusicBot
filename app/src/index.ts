@@ -19,7 +19,8 @@ import { isInVoice, logMessage } from './tools';
 import { ChangelogCommand } from './commands/changelog';
 import { RemoveCommand } from './commands/remove';
 import { StatusCommand } from './commands/status';
-import { TopSongsCommand } from './commands/top'
+import { TopSongsCommand } from './commands/top';
+import { FavouritesCommand } from './commands/favourites';
 
 var debug = false;
 
@@ -46,7 +47,7 @@ const commandsList: Command[] = [
     LoopCommand,
     StatusCommand,
     TopSongsCommand,
-    
+    FavouritesCommand,
 ];
 
 var commandMap = new Discord.Collection<String, Command>();

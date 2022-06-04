@@ -14,6 +14,10 @@ export const Logs = sequelize.define('Log', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    music_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     message: {
         type: DataTypes.STRING,
         allowNull: true

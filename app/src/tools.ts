@@ -9,14 +9,15 @@ export function isInVoice(message: Message) {
     return message.member?.voice?.channel != null
 }
 
-export async function logMessage(server: string, serverID: string, taskType: string, error: unknown, status: boolean) {
+export async function logMessage(server: string, serverID: string, taskType: string, message: unknown, failed: boolean, musicID: string) {
     try{
         await Logs.create({
             server_name: server,
             server_id: serverID,
             task: taskType,
-            message: error,
-            failed: status,
+            message: message,
+            failed: failed,
+            music_id: musicID
         })
     }
     catch(error) {
@@ -49,11 +50,12 @@ export async function checkDBConnection(){
     return status;
 }
 
-export async function logServer(serverName: string, amountOfUsers: number) {
+export async function logServer(serverID: string, serverName: string, amountOfUsers: number) {
     try{
         await Server.findOrCreate({
-            where: {server_name: serverName},
+            where: {server_id: serverID},
             defaults: {
+                server_id: serverID,
                 server_name: serverName,
                 amount_of_users: amountOfUsers,
             }

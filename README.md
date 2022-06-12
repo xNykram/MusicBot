@@ -3,13 +3,65 @@
 
 
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Sever-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white)
+
+
+
 
 ![maintenance](https://img.shields.io/badge/maintained-yes-green.svg)
 ![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)
 [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://https://discord.com/)
+![Generic badge](https://img.shields.io/badge/release-v0.01-blue.svg)
+
 
 ***
+
+A discord music bot which plays songs from steraming platforms ex. YouTube.
+
+## Features
+
+- Fast loading of songs
+
+- Various useful commands
+
+- Integration with database
+
+- No external keys needed
+
+- Playlist support
+
+## Commands
+
+- `!help` - Shows command list.
+
+- `!join` - Makes bot join yours voice channel.
+
+- `!leave` - Forces bot to leave voice channel.
+
+- `!play` - Search and plays given song.
+
+- `!stop` - Forces bot to stop playing music and leave.
+
+- `!skip `- Skips given amount of songs.
+
+- `!queue` - Shows tracks queue.
+
+- `!shuffle` - Mixes up the current queue.
+
+- `!search` - Search for a given title.
+
+- `!changelog` - Display a list of the latest changes.
+
+- `!remove `- Removes given position(s) from the queue.
+
+- `!loop` - Loops current queue given amount of times.
+
+- `!status`- Shows helpful information.
+
+- `!top` - Shows best songs.
+
+- `!favourites` - List of favourite songs. 
 
 ## Usage
 

@@ -27,7 +27,6 @@ async function favourites(message: Discord.Message, args: string[]): Promise <bo
                 is_active: true,
             }
         });
-        console.log(favouritesNumber)
         if (favouritesNumber >= favouritesLimit) {
             message.reply('You can only add 10 songs to your favourites.');
             return false;

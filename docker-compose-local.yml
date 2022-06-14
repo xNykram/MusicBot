@@ -1,13 +1,18 @@
 version: "3"
 
 services:
+  db:
+    image: postgres
+    restart: always
+    environment: # test environment
+      POSTGRES_USER: user 
+      POSTGRES_PASSWORD: user 
+      POSTGRES_DB: musicbot
   app:
-    build:
-      context: .
-    volumes:
-      - ./app/src:/app/src
-    ports:
-      - "8000:8000"
+    build: .
     command: >
       bash -c "npm run debug"
-    network_mode: musicbot
+    depends_on:
+      - db
+    env_file:
+      - .env

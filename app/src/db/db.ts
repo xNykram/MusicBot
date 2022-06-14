@@ -1,8 +1,9 @@
-import { dbHostname, dbLogin, dbName, dbPass } from '../config.json'; 
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(dbName, dbLogin, dbPass, {
-    host: dbHostname,
+const { PGUSER, PGPASSWORD, PGDATABASE, PGHOST } = process.env
+
+const sequelize = new Sequelize(PGDATABASE, PGUSER, PGPASSWORD, {
+    host: PGHOST,
     dialect: 'postgres',
     logging: false,
     pool: {

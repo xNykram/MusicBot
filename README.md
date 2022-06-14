@@ -43,7 +43,7 @@ A discord music bot which plays songs from steraming platforms ex. YouTube.
 
 - `!stop` - Forces bot to stop playing music and leave.
 
-- `!skip `- Skips given amount of songs.
+- `!skip`- Skips given amount of songs.
 
 - `!queue` - Shows tracks queue.
 
@@ -53,7 +53,7 @@ A discord music bot which plays songs from steraming platforms ex. YouTube.
 
 - `!changelog` - Display a list of the latest changes.
 
-- `!remove `- Removes given position(s) from the queue.
+- `!remove`- Removes given position(s) from the queue.
 
 - `!loop` - Loops current queue given amount of times.
 
@@ -63,8 +63,18 @@ A discord music bot which plays songs from steraming platforms ex. YouTube.
 
 - `!favourites` - List of favourite songs. 
 
-## Usage
+
+## Setup
+
+***
+
+Requirements:
+
+Docker Compose, Microsoft SQL Server
+
 
 - `npm run start` - Starts bot using standard login token
+
 - `npm run debug` - Starts bot using test login token, useful for testing new features
-- `npm run test` - Runs all tests in test directory
+
+TBC...

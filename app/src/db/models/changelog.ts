@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 import { sequelize } from '../db'
 
-export const Changelog = sequelize.define('Changelog', {
+export const Changelog = sequelize.define('changelog', {
     author: {
       type: DataTypes.STRING,
       allowNull: false
@@ -18,5 +18,5 @@ export const Changelog = sequelize.define('Changelog', {
         type: DataTypes.DATE,
         allowNull: true
     }
-}, { freezeTableName: true }, { sequelize, modelName: 'Changelog'});
+}, { freezeTableName: true }, { sequelize, modelName: 'changelog'});
  

@@ -19,6 +19,7 @@
     "discord.js": "^13.2.0",
     "ffmpeg-static": "^5.0.0",
     "libsodium-wrappers": "^0.7.9",
+    "pg": "^8.7.3",
     "pretty-ms": "^7.0.1",
     "sequelize": "^6.15.0",
     "tedious": "^14.4.0",

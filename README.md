@@ -78,15 +78,16 @@ Docker Compose, Postgres database
 MB_PREFIX='!' # Prefix used to invoke commands.
 MB_TOKEN='' # API Discord Key
 MB_DEBUG_TOKEN='' # API Discord Key used for debugging bot
-DBHOST=yoursHostname
-DBUSER=yoursUser
-DBPASSWORD=yoursPassword
-DBDATABASE=yoursDbName
+PGHOST=yoursHostname
+PGUSER=yoursUser
+PGPASSWORD=yoursPassword
+PGDATABASE=yoursDbName
 ```
 - Run `docker-compose up`
 
 ### To run in debug mode with local debug database:
 - Match credentials in .env file with credentials in docker-compose-local.yml file
+- Set `PGHOST="db"` in .env file
 - Run `docker-compose --file docker-compose-local.yml up`
 
 

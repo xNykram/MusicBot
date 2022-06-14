@@ -1,14 +1,14 @@
 const { DataTypes } = require('sequelize');
 import { sequelize } from '../db'
 
-export const Server = sequelize.define('Servers', {
+export const Server = sequelize.define('servers', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
     server_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.BIGINT,
         allowNull: false
     },
     server_name: {
@@ -24,5 +24,5 @@ export const Server = sequelize.define('Servers', {
         allowNull: true,
         defaultValue: DataTypes.NOW,
     }
-}, { freezeTableName: true } , { sequelize, modelName: 'Servers'});
+}, { freezeTableName: true } , { sequelize, modelName: 'servers'});
  

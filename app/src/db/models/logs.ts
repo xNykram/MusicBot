@@ -1,13 +1,13 @@
 const { DataTypes } = require('sequelize');
 import { sequelize } from '../db'
 
-export const Logs = sequelize.define('Log', {
+export const Logs = sequelize.define('log', {
     server_name: {
         type: DataTypes.STRING,
         allowNull: false
     },
     server_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.BIGINT,
         allowNull: true
     },
     task: {
@@ -31,5 +31,5 @@ export const Logs = sequelize.define('Log', {
         defaultValue: DataTypes.NOW,
         allowNull: true
     }
-}, { sequelize, modelName: 'Log' });
+}, { freezeTableName: true }, { sequelize, modelName: 'log' });
  

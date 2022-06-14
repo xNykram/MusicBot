@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 import { sequelize } from '../db'
 
-export const Favourite = sequelize.define('Favourites', {
+export const Favourite = sequelize.define('favourites', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -28,5 +28,5 @@ export const Favourite = sequelize.define('Favourites', {
         allowNull: true,
         defaultValue: DataTypes.NOW,
     }
-}, { freezeTableName: true }, { sequelize, modelName: 'Favourites'});
+}, { freezeTableName: true }, { sequelize, modelName: 'favourites'});
  

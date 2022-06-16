@@ -1,3 +1,5 @@
+import { vwTopStats } from "./views/topstats";
+
 const { Sequelize } = require('sequelize');
 
 const { PGUSER, PGPASSWORD, PGDATABASE, PGHOST } = process.env
@@ -24,5 +26,7 @@ const sequelize = new Sequelize(PGDATABASE, PGUSER, PGPASSWORD, {
   });
 
 (async () => {await sequelize.sync()})();
+
+vwTopStats();
 
 export { sequelize };

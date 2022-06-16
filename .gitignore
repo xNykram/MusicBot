@@ -4,3 +4,4 @@ package-lock.json
 /.idea
 app/src/config.json
 app/dist
+.env

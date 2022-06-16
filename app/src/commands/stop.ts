@@ -6,7 +6,7 @@ import { Subscription, getSubscription } from '../bot';
 export const StopCommand : Command = {
     name: 'stop',
     description: 'Forces bot to stop playing music and leave.',
-    aliases: ['s', 'st', 'end'],
+    aliases: ['st', 'end'],
     execute: stopBot,
     requireVoiceChannel: true
 };

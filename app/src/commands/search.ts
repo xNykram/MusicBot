@@ -11,7 +11,7 @@ export const MAX_SEARCH_RESULTS = 5
 export const SearchCommand: Command = {
     name: 'search',
     description: 'Search for a given title',
-    aliases: ['s', 'find', 'sear', 'yt', 'youtube'],
+    aliases: ['find', 'sear', 'yt', 'youtube'],
     execute: searchQuery
 }
 

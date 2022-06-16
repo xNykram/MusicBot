@@ -2,12 +2,22 @@ version: "3"
 
 services:
   app:
-    build:
-      context: .
-    volumes:
+      build: .
+      command: >
+        bash -c "npm run debug"
+      depends_on:
+        - db
+      env_file:
+        - .env
+      volumes:
       - ./app/src:/app/src
+  db:
+    image: postgres
+    restart: always
+    container_name: sql1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: discordbot
     ports:
-      - "8000:8000"
-    command: >
-      bash -c "npm run debug"
-    network_mode: musicbot
+      - "5432:5432"

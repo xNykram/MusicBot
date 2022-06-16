@@ -1,5 +1,4 @@
 // Setup
-import { prefix, token, testToken } from './config.json';
 import { Command } from './commands/command';
 import Discord, { Client, Intents } from 'discord.js';
 import { logServer } from './tools';
@@ -21,6 +20,10 @@ import { RemoveCommand } from './commands/remove';
 import { StatusCommand } from './commands/status';
 import { TopSongsCommand } from './commands/top';
 import { FavouritesCommand } from './commands/favourites';
+
+import 'dotenv/config'
+
+const { MB_PREFIX, MB_TOKEN, MB_DEBUG_TOKEN } = process.env
 
 var debug = false;
 
@@ -69,7 +72,7 @@ client.once('ready', () => {
 
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
-    if (!message.content.startsWith(prefix)) return;
+    if (!message.content.startsWith(MB_PREFIX)) return;
     const args = message.content.split(' ');
     const commandName = args[0].substring(1).toLowerCase();
     const command = commandMap.get(commandName);
@@ -103,10 +106,10 @@ client.on('messageCreate', async message => {
 })
 
 if (debug) {
-    client.login(testToken);
+    client.login(MB_DEBUG_TOKEN);
 }
 else {
-    client.login(token);
+    client.login(MB_TOKEN);
 }
 
 

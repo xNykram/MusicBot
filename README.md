@@ -67,14 +67,27 @@ A discord music bot which plays songs from steraming platforms ex. YouTube.
 ## Setup
 
 ***
-
 Requirements:
 
-Docker Compose, Microsoft SQL Server
+Docker Compose, Postgres database
+
+- Clone this repo.
+- Create .env file:
+```
+# .env
+MB_PREFIX='!' # Prefix used to invoke commands.
+MB_TOKEN='' # API Discord Key
+MB_DEBUG_TOKEN='' # API Discord Key used for debugging bot
+PGHOST=yoursHostname
+PGUSER=yoursUser
+PGPASSWORD=yoursPassword
+PGDATABASE=yoursDbName
+```
+- Run `docker-compose up`
+
+### To run in debug mode with local debug database:
+- Match credentials in .env file with credentials in docker-compose-local.yml file
+- Set `PGHOST="db"` in .env file
+- Run `docker-compose --file docker-compose-local.yml up`
 
 
-- `npm run start` - Starts bot using standard login token
-
-- `npm run debug` - Starts bot using test login token, useful for testing new features
-
-TBC...

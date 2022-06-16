@@ -77,7 +77,9 @@ export class Subscription {
         this.audioPlayer.on('stateChange', (oldState, newState) => {
             if (newState.status === AudioPlayerStatus.Idle && oldState.status !== AudioPlayerStatus.Idle) {
                 //audio resource has finished playing
-                logMessage(this.guildName, this.guildId, 'play', this.currentSong.title, false, this.currentSong.videoId);
+                if (this.currentSong){
+                    logMessage(this.guildName, this.guildId, 'play', this.currentSong.title, false, this.currentSong.videoId);
+                }
                 this.currentSong = null;
                 this.processQueue();
             }

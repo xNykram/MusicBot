@@ -106,7 +106,7 @@ async function favourites(message: Discord.Message, args: string[]): Promise <bo
                 user_id: message.author.id,
                 is_active: true,
             },
-            order: ['id', 'DESC']
+            order: [['id', 'DESC']]
         });
         if (favourites.length == 0) {
             message.reply('You have no favourites songs to play.');

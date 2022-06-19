@@ -4,7 +4,7 @@
 
 ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![MicrosoftSQLServer](https://img.shields.io/badge/Microsoft%20SQL%20Sever-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 
 
 
@@ -17,7 +17,7 @@
 
 ***
 
-A discord music bot which plays songs from steraming platforms ex. YouTube.
+A discord music bot which plays songs from steraming platforms ex. YouTube. MusicBot was designed to bring more activity to your server, while keeping control over it all with a simple web interface and advanced, but elegant moderation features.
 
 ## Features
 
@@ -57,37 +57,38 @@ A discord music bot which plays songs from steraming platforms ex. YouTube.
 
 - `!loop` - Loops current queue given amount of times.
 
-- `!status`- Shows helpful information.
+- `!status`- Shows debug information (for developers).
 
-- `!top` - Shows best songs.
+- `!top` - Shows best three songs on the current server.
 
-- `!favourites` - List of favourite songs. 
+- `!top global` - Shows best three songs on all servers.
+
+- `!favourites [add]/[remove]/[play]` - List of favourite songs. Allows you to add or remove a song from your favourites list. You can also add all songs from your favourites list to the queue.
 
 
 ## Setup
 
-***
-Requirements:
 
-Docker Compose, Postgres database
+ - Install [Docker Engine](https://docs.docker.com/compose/install/). 
+ 
 
-- Clone this repo.
-- Create .env file:
+- Run `git clone https://github.com/WebSoftDevs/MusicBot.git`
+- Create `.env` file in root directory:
 ```
 # .env
 MB_PREFIX='!' # Prefix used to invoke commands.
 MB_TOKEN='' # API Discord Key
 MB_DEBUG_TOKEN='' # API Discord Key used for debugging bot
-PGHOST=yoursHostname
+PGHOST=sql1 # Container name
 PGUSER=yoursUser
 PGPASSWORD=yoursPassword
 PGDATABASE=yoursDbName
 ```
-- Run `docker-compose up`
 
-### To run in debug mode with local debug database:
-- Match credentials in .env file with credentials in docker-compose-local.yml file
-- Set `PGHOST="db"` in .env file
-- Run `docker-compose --file docker-compose-local.yml up`
+- Match credentials in .env file with credentials in docker-compose-local.yml file.
+- Run below commands:
 
+    `docker build .`
+
+    `docker-compose -f docker-compose-local.yml up`
 

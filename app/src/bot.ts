@@ -8,17 +8,23 @@ import {
     VoiceConnectionStatus,
     VoiceConnectionDisconnectReason,
     entersState,
-    getVoiceConnection
+    getVoiceConnection,
 } from '@discordjs/voice';
 
-import { VideoMetadataResult, VideoSearchResult } from 'yt-search';
+import fs from 'fs'
+
+import YTDlpWrap from 'yt-dlp-wrap'
+
+const ytdlp = new YTDlpWrap("/usr/local/bin/yt-dlp")
 
 import { logMessage } from './tools';
 
 import { promisify } from 'util';
 
-import ytdl from 'ytdl-core';
+
 import Discord from 'discord.js';
+import { VideoMetadataResult, VideoSearchResult } from 'yt-search';
+import { Readable } from 'stream';
 
 const wait = promisify(setTimeout);
 const subscriptions = new Map();
@@ -33,6 +39,7 @@ export class Subscription {
     queueLock = false;
     readyLock = false;
     currentSong: VideoInfo;
+    stream: Readable;
 
     constructor(guild: Discord.Guild) {
         this.guildId = guild.id;
@@ -132,6 +139,7 @@ export class Subscription {
         let voiceConnection = this.getVoice();
         if (this.isInVoiceChannel(null)) {
             voiceConnection.disconnect();
+            fs.rmSync(`${this.guildId}.opus`)
             return true;
         }
 
@@ -246,20 +254,35 @@ export class Subscription {
             return;
         }
 
+        
         this.queueLock = true;
         const nextTrack = this.currentSong ? this.currentSong : this.queue.shift();
 
+        let fileName = `${this.guildId}.opus`
         try {
-            const stream = ytdl(nextTrack.url, {
-                liveBuffer: 4000,
-                filter: 'audioonly',
-                highWaterMark: 1 << 25
-            });
-            const resource = createAudioResource(stream);
+          ytdlp.execPromise([
+            nextTrack.url,
+            '-o',
+            `${this.guildId}.%(ext)s`,
+            '-x',
+            '--audio-format',
+            'opus',
+            '--force-overwrites',
+            '--max-filesize',
+            '50M'
+          ]).then(_ => {
+            if(!fs.existsSync(fileName)) {
+              this.queueLock = false;
+              this.currentSong = null;
+              this.processQueue();
+              return;
+            }
             this.currentSong = nextTrack;
-            this.audioPlayer.stop(true);
+            this.audioPlayer.stop(true)
+            const resource = createAudioResource(fs.createReadStream(fileName));
             this.audioPlayer.play(resource);
             this.queueLock = false;
+          })
         }
         catch (error) {
             this.queueLock = false;

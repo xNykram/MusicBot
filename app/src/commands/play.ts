@@ -1,10 +1,11 @@
-import ytSearch from 'yt-search';
 import Discord from 'discord.js';
 
 import { Command } from './command';
 import { JoinCommand } from './join';
 import { Subscription, getSubscription } from '../bot';
 import { isInVoice } from '../tools';
+
+import ytSearch from 'yt-search'
 
 export const PlayCommand: Command = {
     name: 'play',

@@ -20,6 +20,7 @@ import { RemoveCommand } from './commands/remove';
 import { StatusCommand } from './commands/status';
 import { TopSongsCommand } from './commands/top';
 import { FavouritesCommand } from './commands/favourites';
+import YTDlpWrap from 'yt-dlp-wrap'
 
 import 'dotenv/config'
 

@@ -25,8 +25,6 @@ const sequelize = new Sequelize(PGDATABASE, PGUSER, PGPASSWORD, {
     },
   });
 
-(async () => {await sequelize.sync()})();
-
-//vwTopStats();
+(async () => {await sequelize.sync(); await vwTopStats();})();
 
 export { sequelize };

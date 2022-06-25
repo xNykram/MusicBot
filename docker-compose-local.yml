@@ -15,9 +15,10 @@ services:
     image: postgres
     restart: always
     container_name: sql1
+    ports:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: discordbot
     ports:
-      - "5432:5432"
+      - "5433:5432"

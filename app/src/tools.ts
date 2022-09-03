@@ -6,62 +6,62 @@ import os from 'os'
 import { sequelize } from './db/db';
 
 export function isInVoice(message: Message) {
-    return message.member?.voice?.channel != null
+  return message.member?.voice?.channel != null
 }
 
 export async function logMessage(server: string, serverID: string, taskType: string, message: unknown, failed: boolean, musicID: string) {
-    try{
-        await Logs.create({
-            server_name: server,
-            server_id: serverID,
-            task: taskType,
-            message: message,
-            failed: failed,
-            music_id: musicID
-        })
-    }
-    catch(error) {
-        console.log(error);
-    }
+  try {
+    await Logs.create({
+      server_name: server,
+      server_id: serverID,
+      task: taskType,
+      message: message,
+      failed: failed,
+      music_id: musicID
+    })
+  }
+  catch (error) {
+    console.log(error);
+  }
 }
 
 export function getUptime(client: Client) {
-    return prettyMilliseconds(client.uptime);
+  return prettyMilliseconds(client.uptime);
 }
 
-export function getFreeRAM(){
-    return Math.round(os.freemem() / (1024 * 1024))
+export function getFreeRAM() {
+  return Math.round(os.freemem() / (1024 * 1024))
 }
 
-export async function checkDBConnection(){
+export async function checkDBConnection() {
 
-    const AGREE_EMOJI: string = '✅'
-    const DISAGREE_EMOJI: string = '❌'
-    let status: string;
-    
-    await sequelize.authenticate()
+  const AGREE_EMOJI: string = '✅'
+  const DISAGREE_EMOJI: string = '❌'
+  let status: string;
+
+  await sequelize.authenticate()
     .then(() => {
-        status = AGREE_EMOJI;
+      status = AGREE_EMOJI;
     })
     .catch(() => {
-        status = DISAGREE_EMOJI;
+      status = DISAGREE_EMOJI;
     });
 
-    return status;
+  return status;
 }
 
 export async function logServer(serverID: string, serverName: string, amountOfUsers: number) {
-    try{
-        await Server.findOrCreate({
-            where: {server_id: serverID},
-            defaults: {
-                server_id: serverID,
-                server_name: serverName,
-                amount_of_users: amountOfUsers,
-            }
-        });
-    }
-    catch(error) {
-        console.log(error);
-    }
+  try {
+    await Server.findOrCreate({
+      where: { server_id: serverID },
+      defaults: {
+        server_id: serverID,
+        server_name: serverName,
+        amount_of_users: amountOfUsers,
+      }
+    });
+  }
+  catch (error) {
+    console.log(error);
+  }
 }

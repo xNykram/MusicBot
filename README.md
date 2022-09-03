@@ -83,6 +83,7 @@ PGHOST=sql1 # Container name
 PGUSER=yoursUser
 PGPASSWORD=yoursPassword
 PGDATABASE=yoursDbName
+SPOTIFY_ACCESS_TOKEN=''
 ```
 
 - Match credentials in .env file with credentials in docker-compose-local.yml file.

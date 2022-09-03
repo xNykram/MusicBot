@@ -294,7 +294,7 @@ export class Subscription {
   }
 
   deleteSongFile() {
-    fs.rmSync(this.fileName)  
+    fs.rmSync(this.fileName)
   }
 }
 

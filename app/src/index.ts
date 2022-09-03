@@ -28,7 +28,7 @@ const { MB_PREFIX, MB_TOKEN, MB_DEBUG_TOKEN } = process.env
 var debug = false;
 
 if (process.argv.includes('-d')) {
-    debug = true;
+  debug = true;
 }
 
 const intents = new Intents(32509)
@@ -36,80 +36,80 @@ intents.add(Intents.FLAGS.GUILD_MESSAGE_REACTIONS)
 const client = new Client({ intents });
 
 const commandsList: Command[] = [
-    HelpCommand,
-    JoinCommand,
-    LeaveCommand,
-    PlayCommand,
-    StopCommand,
-    SkipCommand,
-    QueueCommand,
-    ShuffleCommand,
-    SearchCommand,
-    ChangelogCommand,
-    RemoveCommand,
-    LoopCommand,
-    StatusCommand,
-    TopSongsCommand,
-    FavouritesCommand,
+  HelpCommand,
+  JoinCommand,
+  LeaveCommand,
+  PlayCommand,
+  StopCommand,
+  SkipCommand,
+  QueueCommand,
+  ShuffleCommand,
+  SearchCommand,
+  ChangelogCommand,
+  RemoveCommand,
+  LoopCommand,
+  StatusCommand,
+  TopSongsCommand,
+  FavouritesCommand,
 ];
 
 var commandMap = new Discord.Collection<String, Command>();
 
 for (const command of commandsList) {
-    commandMap.set(command.name, command);
-    command.aliases.forEach(alias => commandMap.set(alias.toLowerCase(), command));
+  commandMap.set(command.name, command);
+  command.aliases.forEach(alias => commandMap.set(alias.toLowerCase(), command));
 }
 
 client.once('ready', () => {
-    client.guilds.cache.forEach(guild => {
-        logServer(guild.id ,guild.name, guild.memberCount);
-    });
-    if (debug)
-        console.log("Bot started in debug mode.");
-    else
-        console.log('Bot started.');
+  client.guilds.cache.forEach(guild => {
+    logServer(guild.id, guild.name, guild.memberCount);
+  });
+  if (debug)
+    console.log("Bot started in debug mode.");
+  else
+    console.log('Bot started.');
 });
 
 client.on('messageCreate', async message => {
-    if (message.author.bot) return;
-    if (!message.content.startsWith(MB_PREFIX)) return;
-    const args = message.content.split(' ');
-    const commandName = args[0].substring(1).toLowerCase();
-    const command = commandMap.get(commandName);
-    if (command) {
-        const bot: Subscription = getSubscription(message)
-        let userInVoice = isInVoice(message)
-        let botInVoiceWithUser = bot.isInVoiceChannel(message)
-        if(command.requireVoiceChannel && (!userInVoice || !botInVoiceWithUser)) {
-            message.reply("You have to be in voice channel with bot to do that!")
-            bot.debug(`User not in VC with bot. userInVoice: ${userInVoice}, botInVoiceWithUser: ${botInVoiceWithUser}`)
-            return
-        }
+  if (message.author.bot) return;
+  if (!message.content.startsWith(MB_PREFIX)) return;
+  const args = message.content.split(' ');
+  const commandName = args[0].substring(1).toLowerCase();
+  const command = commandMap.get(commandName);
+  if (command) {
+    const bot: Subscription = getSubscription(message)
+    let userInVoice = isInVoice(message)
+    let botInVoiceWithUser = bot.isInVoiceChannel(message)
+    if (command.requireVoiceChannel && (!userInVoice || !botInVoiceWithUser)) {
+      message.reply("You have to be in voice channel with bot to do that!")
+      bot.debug(`User not in VC with bot. userInVoice: ${userInVoice}, botInVoiceWithUser: ${botInVoiceWithUser}`)
+      return
+    }
 
-        if (command.name == 'help') {
-            command.execute(message, commandsList);
-        }
-        else {
-            command.execute(message, args.splice(1))
-            .then(() => {
-                logMessage(message.guild.name, message.guild.id, message.content, null, false, null)
-            })
-            .catch(reason => {
-                logMessage(message.guild.name, message.guild.id ,message.content, reason.toString(), true, null)
-                bot.debug(`Cought error: ${reason}`)
-            });
-        }
+    if (command.name == 'help') {
+      command.execute(message, commandsList);
     }
     else {
-        message.reply(`There is no command ${commandName}. Type !help to see command list`);
+      command.execute(message, args.splice(1))
+        .then(() => {
+          logMessage(message.guild.name, message.guild.id, message.content, null, false, null)
+        })
+        .catch(reason => {
+          logMessage(message.guild.name, message.guild.id, message.content, reason.toString(), true, null)
+          bot.debug(`Cought error: ${reason}`)
+        });
     }
+  }
+  else {
+    message.reply(`There is no command ${commandName}. Type !help to see command list`);
+  }
 })
 
 if (debug) {
-    client.login(MB_DEBUG_TOKEN);
+  client.login(MB_DEBUG_TOKEN);
 }
 else {
-    client.login(MB_TOKEN);
+  client.login(MB_TOKEN);
 }
 
 
